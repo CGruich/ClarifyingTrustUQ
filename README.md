@@ -17,13 +17,40 @@ ___
 
 # Table of Contents
 
+
 ___
 
 # Installation
 
+## **Open Catalyst Project with Custom CGCNN Model with Dropout/Evidential Regression**
+Given the strong benchmark appeal, we use a modified version of the Open Catalyst Project codebase in this study.
+
+Several changes were made because different modules in the codebase communicate with each other during a training run, we changed namely:
+
+1. `cgcnn.py` (now `ocpmodels/models/cgcnn_dropout_evidential.py`)
+2. `evaluator.py` (now `ocpmodels/modules/evaluator.py`)
+3. `loss.py` (now `ocpmodels/modules/loss.py`)
+4. `base_trainer.py` (now `ocpmodels/trainers/base_trainer.py`)
+5. `energy_evidential_trainer.py` (now `ocpmodels/trainers/energy_evidential_trainer.py`)
+6. `energy_trainer.py` (now `ocpmodels/trainers/energy_evidential_trainer.py`)
+
+These modifications can simply be dropped into the Open Catalyst Project codebase in their original folder locations. This repo's ocpmodels folder provides the drop-ins.
+
+For instructions on using the OC20 dataset/Open Catalyst Project to submit training runs and make predictions, please refer to the Open Catalyst Project documentation:
+
+[Open Catalyst Project Installation Instructions](https://github.com/Open-Catalyst-Project/ocp)
+
+## **Dependencies for Plotting**
+We use a heavily modified version of the uncertainty toolbox for UQ visualization—with additional custom plots.
+
+The plotting scripts are installed via a simple drop-in within the uncertainty toolbox. Install the uncertainty toolbox from the Github repo and then drop in the scripts.
+
+[Uncertainty Toolbox Installation Instructions](https://github.com/uncertainty-toolbox/uncertainty-toolbox)
 ___
 
 # Quick Start Guide
+For learning the concepts and their programmatic implementation (e.g., UQ methods, CGCNN, materials application), we encourage trying the Jupyter notebook demonstrations prepared.
+
 
 ___
 
