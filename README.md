@@ -1,4 +1,4 @@
-![](markdown/UQ_Materials_Discovery_Sample.png)
+![](docs/assets/UQ_Materials_Discovery_Sample.png)
 
 **Clarifying Trust of Materials Property Predictions using Neural Networks with Distribution-specific Uncertainty Quantification**
 ___
@@ -47,7 +47,7 @@ The plotting scripts are installed via a simple drop-in within the uncertainty t
 [Uncertainty Toolbox Installation Instructions](https://github.com/uncertainty-toolbox/uncertainty-toolbox)
 ___
 
-# Quick Start Guide
+# Demonstrations
 For learning the concepts and their programmatic implementation (e.g., UQ methods, CGCNN, materials application), we encourage trying the Jupyter notebook demonstrations prepared.
 
 
@@ -78,3 +78,19 @@ Lastly, if you found our implementation of evidential regression onto a CGCNN to
 }`
 
 ___
+
+# Acknowledgements
+<p align="top">
+    <img src="docs/assets/nsf-logo.png" width="20%">
+    &nbsp; &nbsp;
+    <img src="docs/assets/NERSClogocolor.png" width="30%">
+    &nbsp; &nbsp;
+</p>
+
+<sub>
+*This material is based upon work supported by the National Science Foundation Graduate Research Fellowship under Grant No. DGE 1841052.
+</sub>
+
+<sub>
+Any opinion, findings, and conclusions or recommendations expressed in this material are those of the authors(s) and do not necessarily reflect the views of the National Science Foundation.*
+</sub>
