@@ -14,4 +14,4 @@ jobs:
       - uses: isort/isort-action@master
         with:
             requirements-files: "requirements.txt requirements-test.txt"
-            configuration: ""
+            configuration: "--profile black"
