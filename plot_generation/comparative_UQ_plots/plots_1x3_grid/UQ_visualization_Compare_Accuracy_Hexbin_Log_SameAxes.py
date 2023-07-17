@@ -151,8 +151,10 @@ def make_plots(
     commonTickLims = uct.viz_Ensemble.determine_common_axes(axs)
     plotLimBuffer = 0.1
     commonPlotLims = (
-        (commonTickLims[0][0] - plotLimBuffer, commonTickLims[0][1] + plotLimBuffer),
-        (commonTickLims[1][0] - plotLimBuffer, commonTickLims[1][1] + plotLimBuffer),
+        (commonTickLims[0][0] - plotLimBuffer,
+         commonTickLims[0][1] + plotLimBuffer),
+        (commonTickLims[1][0] - plotLimBuffer,
+         commonTickLims[1][1] + plotLimBuffer),
     )
 
     countType = (countsEnsemble, countsDropout, countsEvidential)
@@ -193,8 +195,10 @@ def make_plots(
     axs[0].set(xlabel=None)
     xlim = axs[0].get_xlim()
     ylim = axs[0].get_ylim()
-    axs[0].xaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
-    axs[0].yaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[0].xaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[0].yaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
     axs[0].tick_params(
         axis='both', which='major', direction='out', color='black', length=4.0, width=2.0
     )
@@ -224,8 +228,10 @@ def make_plots(
     axs[1].set(ylabel=None)
     xlim = axs[1].get_xlim()
     ylim = axs[1].get_ylim()
-    axs[1].xaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
-    axs[1].yaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[1].xaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[1].yaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
     axs[1].tick_params(
         axis='both', which='major', direction='out', color='black', length=4.0, width=2.0
     )
@@ -257,8 +263,10 @@ def make_plots(
     axs[2].set(ylabel=None)
     xlim = axs[2].get_xlim()
     ylim = axs[2].get_ylim()
-    axs[2].xaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
-    axs[2].yaxis.set_ticks(np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[2].xaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
+    axs[2].yaxis.set_ticks(
+        np.arange(commonTickLims[0][0], commonTickLims[0][1] + 1, 4.0))
     axs[2].tick_params(
         axis='both', which='major', direction='out', color='black', length=4.0, width=2.0
     )
@@ -295,8 +303,10 @@ def make_plots(
 
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
-        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
+        uct.viz_Evidential.save_figure(
+            plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(
+            plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TARGETS_FILEPATH'
@@ -359,7 +369,8 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(
+        predictionFilePathList[ind], predictionFileNameList[ind])
     uncertaintyFilePath = os.path.join(
         uncertaintyFilePathList[ind], uncertaintyFileNameList[ind]
     )
@@ -386,7 +397,8 @@ savePlotNameLeg = 'UQ_Technique_Compare_Accuracy_Hexbin_Log_Leg_SameAxes_Seed' +
 savePlotNameLegTitle = 'UQ_Technique_Accuracy_Hexbin_Log_LegTitle_SameAxes_Seed' + str(
     rngVisualSeed
 )
-savePlotName = 'UQ_Technique_Compare_Accuracy_Hexbin_Log_SameAxes_Seed' + str(rngVisualSeed)
+savePlotName = 'UQ_Technique_Compare_Accuracy_Hexbin_Log_SameAxes_Seed' + \
+    str(rngVisualSeed)
 
 savePlotFileTitle = os.path.join(savePlotPath, savePlotNameTitle)
 savePlotFileLeg = os.path.join(savePlotPath, savePlotNameLeg)
@@ -418,15 +430,19 @@ targetNP = targetPD[targetColName].to_numpy()
 predictionNPList = []
 uncertaintyNPList = []
 
-predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy()
+predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy(
+)
 predictionNPDropout = predictionPDList[1][predictionColNameDropout].to_numpy()
-predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy()
+predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy(
+)
 predictionNPList.append(predictionNPEnsemble)
 predictionNPList.append(predictionNPDropout)
 predictionNPList.append(predictionNPEvidential)
 
-uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy()
-uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy()
+uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy(
+)
+uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy(
+)
 epistemicUncertaintyNPEvidential = uncertaintyPDList[2][
     epistemicUncertaintyColNameEvidential
 ].to_numpy()
@@ -444,7 +460,8 @@ ensembleAccuracyStats = list(zip(accuracyStatLabels, ensembleAccuracyStats))
 dropoutAccuracyStats = [0.664, 1.026, 0.425, 47.941, 0.797, 0.893]
 dropoutAccuracyStats = list(zip(accuracyStatLabels, dropoutAccuracyStats))
 evidentialAccuracyStats = [0.630, 0.985, 0.391, 45.968, 0.812, 0.902]
-evidentialAccuracyStats = list(zip(accuracyStatLabels, evidentialAccuracyStats))
+evidentialAccuracyStats = list(
+    zip(accuracyStatLabels, evidentialAccuracyStats))
 
 accuracyStats = []
 accuracyStats.append(ensembleAccuracyStats)

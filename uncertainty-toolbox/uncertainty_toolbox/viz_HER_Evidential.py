@@ -222,7 +222,8 @@ def plot_intervals_ordered(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     order = np.argsort(y_pred.flatten())
     y_pred, y_std, y_true = y_pred[order], y_std[order], y_true[order]
@@ -388,7 +389,8 @@ def set_style(style_str: str = 'default') -> NoReturn:
         style_str: string for style file.
     """
     if style_str == 'default':
-        plt.style.use((pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
+        plt.style.use(
+            (pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
 
 
 def save_figure(

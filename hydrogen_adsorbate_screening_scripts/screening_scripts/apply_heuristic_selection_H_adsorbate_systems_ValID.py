@@ -39,9 +39,11 @@ def apply_heuristic_subselection(
     relevantSystems = relevantSystems[
         relevantSystems[y_pred_Label].between(y_pred_Lower, y_pred_Upper)
     ]
-    print('Number of Predictions Matching Prediction Range: ' + str(relevantSystems.shape[0]))
+    print('Number of Predictions Matching Prediction Range: ' +
+          str(relevantSystems.shape[0]))
     # Of the systems selected, further select systems with uncertainty less than or equal to a specific value
-    relevantSystems = relevantSystems[relevantSystems[y_std_Label].between(0, stdDevTarget)]
+    relevantSystems = relevantSystems[relevantSystems[y_std_Label].between(
+        0, stdDevTarget)]
     print(
         'Number of Predictions within Prediction Range <= Specified Uncertainty: '
         + str(relevantSystems.shape[0])
@@ -76,9 +78,11 @@ targetEnergiesLMDBS = LmdbDataset({'src': yTestPath})
 
 # Get the energies and system ids of the test systems
 # NumPy array
-targetEnergiesNP = torch.tensor([data.y_relaxed for data in targetEnergiesLMDBS]).numpy()
+targetEnergiesNP = torch.tensor(
+    [data.y_relaxed for data in targetEnergiesLMDBS]).numpy()
 # NumPy array
-targetEnergiesSIDNP = torch.tensor([data.sid for data in targetEnergiesLMDBS]).numpy()
+targetEnergiesSIDNP = torch.tensor(
+    [data.sid for data in targetEnergiesLMDBS]).numpy()
 # List
 targetEnergiesSID = list(targetEnergiesSIDNP)
 # PANDAS Dataframes
@@ -140,7 +144,8 @@ systemLogDF = pd.read_csv(systemLog, header=None, delimiter='^')
 systemLogDF.columns = ['System']
 sidLogDF = pd.read_csv(sidLog, header=None)
 sidLogDF.columns = ['sid']
-systemLogDF = pd.concat([sidLogDF['sid'], systemLogDF['System']], axis=1, ignore_index=True)
+systemLogDF = pd.concat(
+    [sidLogDF['sid'], systemLogDF['System']], axis=1, ignore_index=True)
 systemLogDF.columns = ['sid', 'System']
 systemDescriptionPD = systemLogDF
 systemDescriptionPD['sid'] = systemDescriptionPD['sid'].str.strip('random')
@@ -149,7 +154,8 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(
+        predictionFilePathList[ind], predictionFileNameList[ind])
     predictionFileList.append(predictionFilePath)
     uncertaintyFilePath = os.path.join(
         uncertaintyFilePathList[ind], uncertaintyFileNameList[ind]
@@ -180,9 +186,11 @@ predictionPDList = []
 
 for ind in range(len(predictionFileList)):
     predictionPD = pd.read_csv(predictionFileList[ind])[predictionLabels[ind]]
-    uncertaintyPD = pd.read_csv(uncertaintyFileList[ind])[uncertaintyLabels[ind]]
+    uncertaintyPD = pd.read_csv(uncertaintyFileList[ind])[
+        uncertaintyLabels[ind]]
     sidPD = pd.read_csv(predictionFileList[ind])['sid']
-    combinedPD = pd.concat([sidPD, predictionPD, uncertaintyPD], axis=1, ignore_index=True)
+    combinedPD = pd.concat(
+        [sidPD, predictionPD, uncertaintyPD], axis=1, ignore_index=True)
     combinedPD.columns = ['sid', predictionLabels[ind], uncertaintyLabels[ind]]
     predictionPDList.append(combinedPD)
 
@@ -201,13 +209,15 @@ for ind in range(len(predictionPDList)):
 
     screenedSIDs = list(relevantSystems['sid'].to_numpy())
     screenedSIDs = [str(sid) for sid in screenedSIDs]
-    screenedTargets = retrieve_system_info(targetEnergiesPD, screenedSIDs, sid_Label='sid')
+    screenedTargets = retrieve_system_info(
+        targetEnergiesPD, screenedSIDs, sid_Label='sid')
     print(screenedTargets)
     screenedTargets = pd.DataFrame(
         screenedTargets['Target (eV)'].to_numpy(), columns=['Target (eV)']
     )
 
-    relevantSystems = pd.concat([relevantSystems, screenedTargets], axis=1, ignore_index=True)
+    relevantSystems = pd.concat(
+        [relevantSystems, screenedTargets], axis=1, ignore_index=True)
     relevantSystems.columns = [
         'sid',
         predictionLabels[ind],
@@ -221,12 +231,15 @@ for ind in range(len(predictionPDList)):
     )
 
     saveFileName = 'SUBSELECTED_' + uncertaintyFileNameList[ind]
-    saveSystemDescriptionName = 'SUBSELECTED_DESC_' + uncertaintyFileNameList[ind]
+    saveSystemDescriptionName = 'SUBSELECTED_DESC_' + \
+        uncertaintyFileNameList[ind]
 
     saveFile = os.path.join(predictionFilePathList[ind], saveFileName)
-    saveDescriptionFile = os.path.join(predictionFilePathList[ind], saveSystemDescriptionName)
+    saveDescriptionFile = os.path.join(
+        predictionFilePathList[ind], saveSystemDescriptionName)
 
     relevantSystems.to_csv(saveFile, header=True, index=False)
     saveFile = os.path.join(uncertaintyFilePathList[ind], saveFileName)
     relevantSystems.to_csv(saveFile, header=True, index=False)
-    relevantSystemDescriptions.to_csv(saveDescriptionFile, header=True, index=False)
+    relevantSystemDescriptions.to_csv(
+        saveDescriptionFile, header=True, index=False)

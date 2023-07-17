@@ -60,7 +60,8 @@ def make_plots(
     fig, axs = plt.subplots(4, 3, figsize=(17, 20))
 
     # Figure supertitle
-    fig.suptitle('\nUncertainty Quantification Plots\n(5-fold Ensemble)', fontsize=24)
+    fig.suptitle(
+        '\nUncertainty Quantification Plots\n(5-fold Ensemble)', fontsize=24)
 
     print(axs)
 
@@ -218,8 +219,10 @@ def make_plots(
 
     # Save figure
     if savefig:
-        uct.viz_Ensemble.save_figure(plot_save_str, 'svg', white_background=True)
-        uct.viz_Ensemble.save_figure(plot_save_str, 'png', white_background=True)
+        uct.viz_Ensemble.save_figure(
+            plot_save_str, 'svg', white_background=True)
+        uct.viz_Ensemble.save_figure(
+            plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TARGETS'
@@ -273,8 +276,10 @@ print(uncertaintyNP)
 # Save figure specification
 savefig = True
 
-mace = uct.mean_absolute_calibration_error(predictionNP, uncertaintyNP, targetNP)
-rmsce = uct.root_mean_squared_calibration_error(predictionNP, uncertaintyNP, targetNP)
+mace = uct.mean_absolute_calibration_error(
+    predictionNP, uncertaintyNP, targetNP)
+rmsce = uct.root_mean_squared_calibration_error(
+    predictionNP, uncertaintyNP, targetNP)
 ma = uct.miscalibration_area(predictionNP, uncertaintyNP, targetNP)
 
 

@@ -225,12 +225,15 @@ def plot_parity(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes,
+                 c='#CD0000', linewidth=2)
     # Parity plot points
-    h1 = ax.plot(y_true, y_pred, '.', mec='black', mfc='#1f77b4', markeredgewidth=1.0)
+    h1 = ax.plot(y_true, y_pred, '.', mec='black',
+                 mfc='#1f77b4', markeredgewidth=1.0)
 
     if showLegend == True:
         ax.legend(
@@ -332,7 +335,8 @@ def plot_parity_hexagonal(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     # Determine lims
 
@@ -355,7 +359,8 @@ def plot_parity_hexagonal(
         lims_ext_xlims = xlims
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes,
+                 c='#CD0000', linewidth=2)
     # Parity plot points, expressed as hexagonal binning
     # h1 = ax.plot(y_true, y_pred, ".", mec="#1f77b4", mfc="#1f77b4")
 
@@ -500,7 +505,8 @@ def plot_xy(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true, x] = filter_subset([y_pred, y_std, y_true, x], n_subset)
+        [y_pred, y_std, y_true, x] = filter_subset(
+            [y_pred, y_std, y_true, x], n_subset)
 
     intervals = num_stds_confidence_bound * y_std
 
@@ -559,7 +565,8 @@ def plot_intervals(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset)
 
     # Compute intervals
     intervals = num_stds_confidence_bound * y_std
@@ -633,7 +640,8 @@ def plot_intervals_ordered(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     order = np.argsort(y_true.flatten())
     y_pred, y_std, y_true = y_pred[order], y_std[order], y_true[order]
@@ -644,7 +652,8 @@ def plot_intervals_ordered(
     ax.errorbar(
         xs, y_pred, intervals, fmt='.', ls='none', linewidth=1.5, c='#1f77b4', alpha=0.5,
     )
-    h1 = ax.plot(xs, y_pred, '.', mec='black', mfc='#1f77b4', markeredgewidth=1.0)
+    h1 = ax.plot(xs, y_pred, '.', mec='black',
+                 mfc='#1f77b4', markeredgewidth=1.0)
     h2 = ax.plot(xs, y_true, '--', linewidth=2.0, c='#CD0000')
 
     # Legend
@@ -683,7 +692,8 @@ def plot_calibration(
     y_true: np.ndarray,
     leg_loc: Union[int, str] = 4,
     leg_labels: Union[list, None] = None,
-    colorList: list = ['#1f77b4', 'darkorange', 'darkgreen', 'gold', 'chocolate', 'darkcyan'],
+    colorList: list = ['#1f77b4', 'darkorange',
+                       'darkgreen', 'gold', 'chocolate', 'darkcyan'],
     markerList: list = ['o', 's', 'P', '^', 'D', 'p'],
     lineList: list = [
         'dashed',
@@ -745,7 +755,8 @@ def plot_calibration(
             filteredDatasets = []
             for trendInd in range(len(y_std)):
                 filteredDataset = filter_subset(
-                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed
+                    [y_pred[trendInd], y_std[trendInd],
+                        y_true[trendInd]], n_subset, seed
                 )
                 filteredDatasets.append(filteredDataset)
         # If proportion data is not specified manually to draw the calibration curve(s), then calculate the proportion data
@@ -782,7 +793,8 @@ def plot_calibration(
                 exp_proportions_iter = np.array(exp_props).flatten()
                 obs_proportions_iter = np.array(obs_props).flatten()
                 if exp_proportions_iter.shape != obs_proportions_iter.shape:
-                    raise RuntimeError('exp_props and obs_props shape mismatch')
+                    raise RuntimeError(
+                        'exp_props and obs_props shape mismatch')
 
                 exp_props_list.append(exp_proportions_iter)
                 obs_props_list.append(obs_proportions_iter)
@@ -791,7 +803,8 @@ def plot_calibration(
     else:
         # Optionally select a subset
         if n_subset is not None:
-            [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+            [y_pred, y_std, y_true] = filter_subset(
+                [y_pred, y_std, y_true], n_subset, seed)
 
         # If proportion data is not specified manually to draw the calibration curve(s), then calculate the proportion data
         if (exp_props is None) or (obs_props is None):
@@ -845,7 +858,8 @@ def plot_calibration(
     # If we only want to plot one calibration curve,
     elif type(y_std) is not list:
         # Plot
-        (h1,) = ax.plot(exp_props_list[0], obs_props_list[0], label=curve_label)
+        (h1,) = ax.plot(exp_props_list[0],
+                        obs_props_list[0], label=curve_label)
         plotObjects.append(h1)
 
     # Format plot
@@ -872,10 +886,12 @@ def plot_calibration(
             for point in zip(exp_props_list[trendInd], obs_props_list[trendInd]):
                 polygon_points.append(point)
             for point in zip(
-                reversed(exp_props_list[trendInd]), reversed(exp_props_list[trendInd])
+                reversed(exp_props_list[trendInd]), reversed(
+                    exp_props_list[trendInd])
             ):
                 polygon_points.append(point)
-            polygon_points.append((exp_props_list[trendInd][0], obs_props_list[trendInd][0]))
+            polygon_points.append(
+                (exp_props_list[trendInd][0], obs_props_list[trendInd][0]))
             polygon = Polygon(polygon_points)
             x, y = polygon.exterior.xy  # original data
             ls = LineString(np.c_[x, y])  # closed, non-simple
@@ -944,7 +960,8 @@ def plot_calibration(
     # then sort everything except the legend labels
     elif leg_labels == None and alphaColorMap == False:
         legendLabelsSortInfo = sorted(
-            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list, colorList)
+            zip(miscalibration_areas, plotObjects,
+                exp_props_list, obs_props_list, colorList)
         )
         miscalibration_areas = [
             area for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
@@ -958,10 +975,12 @@ def plot_calibration(
         obs_props_list = [
             obs_props for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
         ]
-        colorList = [color for area, plot, exp_props, obs_props, color in legendLabelsSortInfo]
+        colorList = [color for area, plot, exp_props,
+                     obs_props, color in legendLabelsSortInfo]
     if leg_labels != None and alphaColorMap == True:
         legendLabelsSortInfo = sorted(
-            zip(miscalibration_areas, plotObjects, leg_labels, exp_props_list, obs_props_list)
+            zip(miscalibration_areas, plotObjects,
+                leg_labels, exp_props_list, obs_props_list)
         )
         miscalibration_areas = [
             area for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
@@ -982,12 +1001,14 @@ def plot_calibration(
     # then sort everything except the legend labels
     elif leg_labels == None and alphaColorMap == True:
         legendLabelsSortInfo = sorted(
-            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list)
+            zip(miscalibration_areas, plotObjects,
+                exp_props_list, obs_props_list)
         )
         miscalibration_areas = [
             area for area, plot, exp_props, obs_props in legendLabelsSortInfo
         ]
-        plotObjects = [plot for area, plot, exp_props, obs_props in legendLabelsSortInfo]
+        plotObjects = [plot for area, plot, exp_props,
+                       obs_props in legendLabelsSortInfo]
         exp_props_list = [
             exp_props for area, plot, exp_props, obs_props in legendLabelsSortInfo
         ]
@@ -1078,12 +1099,15 @@ def plot_calibration(
         alphaScaleFactor = 0.8
 
         for trendInd in range(len(plotObjects)):
-            miscalibrationAreaNormList.append(colorNorm(miscalibration_areas[trendInd]))
-            miscalibrationAlpha = alphaScaleFactor * (1 - miscalibrationAreaNormList[trendInd])
+            miscalibrationAreaNormList.append(
+                colorNorm(miscalibration_areas[trendInd]))
+            miscalibrationAlpha = alphaScaleFactor * \
+                (1 - miscalibrationAreaNormList[trendInd])
             miscalibrationAlphaList.append(miscalibrationAlpha)
 
             miscalibrationColorList.append(
-                miscalibrationAreaColorMap(miscalibrationAreaNormList[trendInd])
+                miscalibrationAreaColorMap(
+                    miscalibrationAreaNormList[trendInd])
             )
             if trendInd == 0:
                 plotObjects[trendInd].set_color('black')
@@ -1099,7 +1123,8 @@ def plot_calibration(
     if showLegend == True and type(y_std) is list:
         for trendInd in range(len(y_std)):
             # New legend label that includes the miscalibration area
-            newLabel = '(' + leg_labels[trendInd] + ', %.2f)' % miscalibration_areas[trendInd]
+            newLabel = '(' + leg_labels[trendInd] + \
+                ', %.2f)' % miscalibration_areas[trendInd]
             leg_labels_with_miscalibration.append(newLabel)
         # Generate legend
         if alphaColorMap == False:
@@ -1125,7 +1150,8 @@ def plot_calibration(
     # If a legend is being plotted for one calibration curve,
     elif showLegend == True and type(y_std) is not list:
         # No need to show the miscalibration area in the legend, just label the line.
-        leg = ax.legend(handles=plotObjects, labels=leg_labels, title=legendTitle, loc=leg_loc)
+        leg = ax.legend(handles=plotObjects, labels=leg_labels,
+                        title=legendTitle, loc=leg_loc)
         leg._legend_box.align = legendAlign
         # Show the miscalibration of the single calibration curve in its own text box
         ax.text(
@@ -1224,7 +1250,8 @@ def plot_adversarial_group_calibration(
             filteredDatasets = []
             for trendInd in range(len(y_std)):
                 filteredDataset = filter_subset(
-                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed
+                    [y_pred[trendInd], y_std[trendInd],
+                        y_true[trendInd]], n_subset, seed
                 )
                 filteredDatasets.append(filteredDataset)
 
@@ -1323,7 +1350,8 @@ def plot_adversarial_group_calibration(
     else:
         # Optionally select a subset
         if n_subset is not None:
-            [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+            [y_pred, y_std, y_true] = filter_subset(
+                [y_pred, y_std, y_true], n_subset, seed)
 
         # Compute group_size, score_mean, score_stderr
         if (group_size is None) or (score_mean is None):
@@ -1389,7 +1417,8 @@ def plot_adversarial_group_calibration(
 
     # Legend
     if showLegend == True:
-        ax.legend(handles=plotObjects, labels=leg_labels, title=legendTitle, loc=4)
+        ax.legend(handles=plotObjects, labels=leg_labels,
+                  title=legendTitle, loc=4)
 
     return ax
 
@@ -1421,12 +1450,14 @@ def plot_sharpness(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     # If bin count is specified, change matlotlib rcParams["hist.bins"] value in histogram,
     if bins is not None:
         # Plot sharpness curve
-        ax.hist(y_std, bins=bins, edgecolor='#1f77b4', color='#a5c8e1', density=True)
+        ax.hist(y_std, bins=bins, edgecolor='#1f77b4',
+                color='#a5c8e1', density=True)
     else:
         # Plot sharpness curve
         ax.hist(y_std, edgecolor='#1f77b4', color='#a5c8e1', density=True)
@@ -1447,7 +1478,8 @@ def plot_sharpness(
 
     # Calculate and report sharpness
     sharpness = np.sqrt(np.mean(y_std ** 2))
-    ax.axvline(x=sharpness, label='sharpness', color='#CD0000', linewidth=2, ls='--')
+    ax.axvline(x=sharpness, label='sharpness',
+               color='#CD0000', linewidth=2, ls='--')
 
     if sharpness < (xlims[0] + xlims[1]) / 2:
         text = '\n  Sharpness = %.2f eV' % sharpness
@@ -1505,7 +1537,8 @@ def plot_residuals_vs_stds(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     # Compute residuals
     residuals = y_true - y_pred
@@ -1526,7 +1559,8 @@ def plot_residuals_vs_stds(
     # h2 = ax.plot(lims, lims, "--", c="#CD0000")
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes,
+                 c='#CD0000', linewidth=2)
 
     # Legend
     if showLegend == True:
@@ -1595,7 +1629,8 @@ def plot_residuals_vs_stds_hexagonal(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     # Compute residuals
     residuals = y_true - y_pred
@@ -1623,7 +1658,8 @@ def plot_residuals_vs_stds_hexagonal(
         lims_ext_xlims = xlims
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes,
+                 c='#CD0000', linewidth=2)
 
     if colorRange != None:
         h1 = ax.hexbin(
@@ -1749,7 +1785,8 @@ def plot_violin_box_plot(
 
             # Move the plot slightly upwards by increasing the plotting range to prevent the violin/box plot from being obscured by the figure border.
             percentToBump = 0.05
-            amountToBump = (lims_ext_ylims[1] - lims_ext_ylims[0]) * percentToBump
+            amountToBump = (lims_ext_ylims[1] -
+                            lims_ext_ylims[0]) * percentToBump
             newMin = lims_ext_ylims[0] - amountToBump
             newMax = lims_ext_ylims[1] + amountToBump
 
@@ -1768,7 +1805,8 @@ def plot_violin_box_plot(
 
             # Move the plot slightly upwards by increasing the plotting range to prevent the violin/box plot from being obscured by the figure border.
             percentToBump = 0.05
-            amountToBump = (lims_ext_ylims[1] - lims_ext_ylims[0]) * percentToBump
+            amountToBump = (lims_ext_ylims[1] -
+                            lims_ext_ylims[0]) * percentToBump
             newMin = lims_ext_ylims[0] - amountToBump
             newMax = lims_ext_ylims[1] + amountToBump
 
@@ -1807,7 +1845,8 @@ def plot_violin_box_plot(
         whiskerprops={'linewidth': 1.5},
         capprops={'linewidth': 1.5},
         medianprops={'linewidth': 1.5, 'color': 'black'},
-        meanprops={'linestyle': (0, (1, 1)), 'linewidth': 1.5, 'color': '#CD0000'},
+        meanprops={'linestyle': (0, (1, 1)),
+                   'linewidth': 1.5, 'color': '#CD0000'},
         flierprops={'marker': '_', 'markeredgewidth': 0.25},
     )
 
@@ -1827,7 +1866,8 @@ def plot_violin_box_plot(
     ax.set_xticklabels([])
 
     if showTitle == True:
-        ax.set_title('Adsorption Energy Uncertainty Violin Plot\n(5-fold Ensemble)')
+        ax.set_title(
+            'Adsorption Energy Uncertainty Violin Plot\n(5-fold Ensemble)')
     # ax.set_xlim(lims_ext_xlims)
     ax.set_ylim(lims_ext_ylims)
 
@@ -1918,7 +1958,8 @@ def set_style(style_str: str = 'default') -> NoReturn:
         style_str: string for style file.
     """
     if style_str == 'default':
-        plt.style.use((pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
+        plt.style.use(
+            (pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
 
 
 def save_figure(
