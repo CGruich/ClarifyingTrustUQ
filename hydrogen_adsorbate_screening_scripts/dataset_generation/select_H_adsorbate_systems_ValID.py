@@ -18,11 +18,14 @@ gigPerLMDB = gigSize * numGigs
 
 valID_H_Adsorbate_Path = sysMetaDataPath
 valID_H_Adsorbate_File = "ValID_H_Adsorbate_data.lmdb"
-valID_H_Adsorbate = os.path.join(valID_H_Adsorbate_Path, valID_H_Adsorbate_File)
+valID_H_Adsorbate = os.path.join(
+    valID_H_Adsorbate_Path, valID_H_Adsorbate_File)
 valID_H_Adsorbate_sid_File = "ValID_H_Adsorbate_sid.csv"
-valID_H_Adsorbate_sid = os.path.join(valID_H_Adsorbate_Path, valID_H_Adsorbate_sid_File)
+valID_H_Adsorbate_sid = os.path.join(
+    valID_H_Adsorbate_Path, valID_H_Adsorbate_sid_File)
 valID_H_Adsorbate_Systems_File = "ValID_H_Adsorbate_systems.csv"
-valID_H_Adsorbate_Systems = os.path.join(valID_H_Adsorbate_Path, valID_H_Adsorbate_Systems_File)
+valID_H_Adsorbate_Systems = os.path.join(
+    valID_H_Adsorbate_Path, valID_H_Adsorbate_Systems_File)
 
 print("Path for OC20 Meta Data:")
 print(sysMetaData)
@@ -62,7 +65,8 @@ with open(subselectSystem, "w") as subselectSystemLog:
 relevant_sids.sort()
 relevant_sids = [str(sid) for sid in relevant_sids]
 
-valID_env = lmdb.open(valID, map_size=gigPerLMDB, subdir=False, readonly=True, lock=False, map_async=True, readahead=False, meminit=False)
+valID_env = lmdb.open(valID, map_size=gigPerLMDB, subdir=False, readonly=True,
+                      lock=False, map_async=True, readahead=False, meminit=False)
 valID_numKeys = valID_env.stat()["entries"]
 valID_keyRange = range(valID_numKeys)
 print("Number of raw entries in ValID:")
@@ -82,30 +86,32 @@ LMDB_ind_to_valID_sid_mapping = {}
 for ind in range(len(valID_Dataset)):
     indKey = str(ind)
     sidValue = str(valID_Dataset[ind].sid)
-    LMDB_ind_to_valID_sid_mapping[sidValue]=indKey
+    LMDB_ind_to_valID_sid_mapping[sidValue] = indKey
 
 # Open the ValID dataset with the LMDB tool
 with valID_env.begin() as txn_old:
     # Open a new LMDB file that we can write sub-selected adsorbate/alloy systems to.
-    cop = lmdb.open(valID_H_Adsorbate, map_size=gigPerLMDB, subdir=False, readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
-    
+    cop = lmdb.open(valID_H_Adsorbate, map_size=gigPerLMDB, subdir=False,
+                    readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
+
     # With the new LMDB file open,
     with cop.begin(write=True) as txn_new:
         counter = 0
-        
+
         # For each relevant sid,
         for sidInd in range(len(relevant_sids)):
             # Get the relevant sid,
             sidVal = relevant_sids[sidInd]
             # Get the ValID row_ind associated with the sid via the dictionary mapping
             try:
-                valID_ind = LMDB_ind_to_valID_sid_mapping[sidVal].encode("ascii")
+                valID_ind = LMDB_ind_to_valID_sid_mapping[sidVal].encode(
+                    "ascii")
             except:
                 continue
-            
+
             # Get the relevant adsorbate/alloy system based on the ValID row_ind
             relevantSystem = txn_old.get(key=valID_ind)
-            
+
             # If the relevant adsorbate/alloy system is inside the Val_ID, copy the system
             # over to our new sub-selected LMDB file of only the relevant adsorbate/alloy systems
             if relevantSystem != None:
@@ -116,7 +122,7 @@ with valID_env.begin() as txn_old:
                 print("(New_Index, sid)" + str((str(counter), sidVal)))
                 counter += 1
                 relevant_sids_valID.append(sidVal)
-    
+
     print("Sub-selection of Systems Completed. Description:")
     print(str(cop.stat()) + "\n")
 
@@ -135,5 +141,5 @@ with open(valID_H_Adsorbate_Systems, "w") as subselectDescLog:
     systemWriter = csv.writer(subselectDescLog)
     for sid in relevant_sids_valID:
         sid = "random" + str(sid)
-        systemWriter.writerow([sid.replace("random", ""), str(sysMetaDataContents[sid])])
-
+        systemWriter.writerow(
+            [sid.replace("random", ""), str(sysMetaDataContents[sid])])

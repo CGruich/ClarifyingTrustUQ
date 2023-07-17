@@ -7,6 +7,7 @@ from ocpmodels.common import distutils
 # For multiple datatype support
 from typing import Union
 
+
 class L2MAELoss(nn.Module):
     def __init__(self, reduction="mean"):
         super().__init__()
@@ -44,6 +45,7 @@ class AtomwiseL2Loss(nn.Module):
         elif self.reduction == "sum":
             return torch.sum(loss)
 
+
 class EvidentialLoss(nn.Module):
     r"""Creates a criterion that measures the evidential negative log likelihood (eNLL) between each element in
     the input :math:`x` and target :math:`y`.
@@ -76,7 +78,7 @@ class EvidentialLoss(nn.Module):
 
     # Custom function for calculating the negative log likelihood of the evidential loss function
     def NIG_NLL(self, y, gamma, v, alpha, beta, reduction="sum"):
-    
+
         twoBlambda = 2*beta*(1 + v)
 
         nll = 0.5*torch.log(np.pi/v)  \
@@ -89,13 +91,13 @@ class EvidentialLoss(nn.Module):
             return torch.mean(nll)
         elif self.reduction == "sum":
             return torch.sum(nll)
-    
+
     # Custom function for calculating the regularizer term of the evidential loss function
     def NIG_Reg(self, y, gamma, v, alpha, beta, reduction="sum"):
-        
+
         # Get the predictive error
         error = torch.abs(y - gamma)
-    
+
         evidence = 2*v+(alpha)
         reg = error*evidence
 
@@ -106,21 +108,25 @@ class EvidentialLoss(nn.Module):
 
     # One of the steps to implementing DER is to define a custom loss function for the neural network
     # This is done here.
-    def EvidentialRegression(self, pred, target, lamb = 0.0, reduction = "sum"):
-        
+    def EvidentialRegression(self, pred, target, lamb=0.0, reduction="sum"):
+
         # Get the evidential distribution parameters from the model output
         # Calculate the negative log likelihood term of the evidential loss function
-        loss_nll = self.NIG_NLL(target, pred["energy"], pred["v"], pred["alpha"], pred["beta"], reduction)
+        loss_nll = self.NIG_NLL(
+            target, pred["energy"], pred["v"], pred["alpha"], pred["beta"], reduction)
         # Calculate the regularizer term (see original paper)
-        loss_reg = self.NIG_Reg(target, pred["energy"], pred["v"], pred["alpha"], pred["beta"], reduction)
-        
+        loss_reg = self.NIG_Reg(
+            target, pred["energy"], pred["v"], pred["alpha"], pred["beta"], reduction)
+
         return loss_nll + (lamb*loss_reg)
 
     def forward(self, pred: torch.Tensor, target: torch.Tensor, lamb: float = 0.0, reduction: str = "sum") -> torch.Tensor:
 
-        nll_error = self.EvidentialRegression(pred, target, self.lamb, self.reduction)
+        nll_error = self.EvidentialRegression(
+            pred, target, self.lamb, self.reduction)
         return nll_error
-    
+
+
 class DDPLoss(nn.Module):
     def __init__(self, loss_fn, reduction="mean"):
         super().__init__()
@@ -149,20 +155,20 @@ class DDPLoss(nn.Module):
                 num_samples = (
                     batch_size if batch_size is not None else pred[firstPredKey].shape[0]
                 )
-            
+
             else:
                 num_samples = (
                     batch_size if batch_size is not None else pred.shape[0]
                 )
-            
+
             # If using deep evidential regression,
 
             if type(pred) == dict:
-                num_samples = distutils.all_reduce(num_samples, 
-                    device=pred[firstPredKey].device)
+                num_samples = distutils.all_reduce(num_samples,
+                                                   device=pred[firstPredKey].device)
             else:
-                num_samples = distutils.all_reduce(num_samples, 
-                    device=pred.device)
+                num_samples = distutils.all_reduce(num_samples,
+                                                   device=pred.device)
             # Multiply by world size since gradients are averaged
             # across DDP replicas
             return loss * distutils.get_world_size() / num_samples

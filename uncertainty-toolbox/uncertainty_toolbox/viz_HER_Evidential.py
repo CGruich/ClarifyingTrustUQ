@@ -30,6 +30,7 @@ from sklearn.isotonic import IsotonicRegression
 global lambdaSymbolStr
 lambdaSymbolStr = "\u03bb"
 
+
 def plot_accuracy_lineplot(
         error_array: np.ndarray,
         leg_loc: Union[int, str] = 2,
@@ -59,8 +60,8 @@ def plot_accuracy_lineplot(
 
     # Create ax if it doesn't exist
     if ax is None:
-        fix, ax = plt.subplots(figsize=(5,5))
-    
+        fix, ax = plt.subplots(figsize=(5, 5))
+
     xPoints = [points[0] for points in error_array]
     numPointsPerTrend = len(xPoints)
     trendData = [points[1:] for points in error_array]
@@ -80,27 +81,29 @@ def plot_accuracy_lineplot(
 
         # Make sure we have enough marker shapes for each trend
         assert len(markerList) >= numLineTrends
-        
+
         if leg_labels is not None:
-            ax.plot(xPoints, yPoints, color = "black", marker = markerList[trendInd], markerfacecolor = colorList[trendInd], markeredgecolor = 'black', 
-                    markeredgewidth = '2', linestyle = lineList[trendInd], linewidth = 2, markersize = 8, label = leg_labels[trendInd])
+            ax.plot(xPoints, yPoints, color="black", marker=markerList[trendInd], markerfacecolor=colorList[trendInd], markeredgecolor='black',
+                    markeredgewidth='2', linestyle=lineList[trendInd], linewidth=2, markersize=8, label=leg_labels[trendInd])
         elif leg_labels is None:
-            ax.plot(xPoints, yPoints, color = "black", marker = markerList[trendInd], markerfacecolor = colorList[trendInd], markeredgecolor = 'black',
-                    markeredgewidth = '2', linestyle = lineList[trendInd], linewidth = 2, markersize = 8)
+            ax.plot(xPoints, yPoints, color="black", marker=markerList[trendInd], markerfacecolor=colorList[trendInd], markeredgecolor='black',
+                    markeredgewidth='2', linestyle=lineList[trendInd], linewidth=2, markersize=8)
 
     # Construct a legend if not None
     if (leg_labels is not None) and (showLegend == True):
         assert len(leg_labels) == numLineTrends
-        ax.legend(labels = leg_labels)
-    
+        ax.legend(labels=leg_labels)
+
     if xLabels != None:
         ax.set_xticks(xPoints, xLabels)
-    
+
     ax.set_xlabel("Regularization Hyperparameter " + lambdaSymbolStr)
     ax.set_ylabel("Mean Absolute Error (eV)")
     if showTitle == True:
-        ax.set_title("Test Accuracy versus Regularization Hyperparameter\n(Evidential Regression)")    
+        ax.set_title(
+            "Test Accuracy versus Regularization Hyperparameter\n(Evidential Regression)")
     return ax
+
 
 def plot_accuracy_barchart(
         error_array: np.ndarray,
@@ -126,35 +129,37 @@ def plot_accuracy_barchart(
 
     # Create ax if it doesn't exist
     if ax is None:
-        fix, ax = plt.subplots(figsize=(10,10))
-    
+        fix, ax = plt.subplots(figsize=(10, 10))
+
     numBars = erroy_array.size
     xIndices = np.arange(numBars)
-    
+
     xWidth = 0.35
-    
+
     # Set up x-axis labeling
     if xLabels is not None:
         assert len(xLabels) == numBars
 
     # Make sure we have enough colors for each bar
     assert len(colorList) == len(error_array[0])
-    
+
     # Construct the bar chart
     for xInd in range(xIndices.shape[0]):
         for barInd in range(len(xIndices[xInd])):
-            ax.bar(xIndices[xInd], xIndicies[xInd][barInd], color = colorList[barInd], width = xWidth)
-    
+            ax.bar(xIndices[xInd], xIndicies[xInd][barInd],
+                   color=colorList[barInd], width=xWidth)
+
     # Construct a legend if not None
     if (leg_labels is not None) and (showLegend == True):
         assert len(leg_labels) == len(colorList)
-        ax.legend(labels = leg_labels)
+        ax.legend(labels=leg_labels)
 
     ax.set_xticks(xIndices, xLabels)
     ax.set_ylabel("Error")
     if showTitle == True:
         ax.set_title("Accuracy Bar Chart")
     return ax
+
 
 def plot_intervals_ordered(
     y_pred: np.ndarray,
@@ -194,7 +199,8 @@ def plot_intervals_ordered(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset(
+            [y_pred, y_std, y_true], n_subset, seed)
 
     order = np.argsort(y_pred.flatten())
     y_pred, y_std, y_true = y_pred[order], y_std[order], y_true[order]
@@ -213,8 +219,10 @@ def plot_intervals_ordered(
             c="#1f77b4",
             alpha=0.5,
         )
-        h1 = ax.plot(xs, y_true, "*", mec="black", mfc="#CD0000", markersize=markerSize, markeredgewidth=1.0)
-        h2 = ax.plot(xs, y_pred, ".", mec="black", mfc="#1f77b4", markersize=markerSize, markeredgewidth=1.0)
+        h1 = ax.plot(xs, y_true, "*", mec="black", mfc="#CD0000",
+                     markersize=markerSize, markeredgewidth=1.0)
+        h2 = ax.plot(xs, y_pred, ".", mec="black", mfc="#1f77b4",
+                     markersize=markerSize, markeredgewidth=1.0)
 
     elif not horizontal:
         h3 = ax.errorbar(
@@ -226,16 +234,20 @@ def plot_intervals_ordered(
             linewidth=2.5,
             c="#1f77b4",
             alpha=0.5,
-        )        
-        h1 = ax.plot(y_true, xs, "*", mec="black", mfc="#CD0000", markersize=markerSize, markeredgewidth=1.0)
-        h2 = ax.plot(y_pred, xs, ".", mec="black", mfc="#1f77b4", markersize=markerSize, markeredgewidth=1.0)
+        )
+        h1 = ax.plot(y_true, xs, "*", mec="black", mfc="#CD0000",
+                     markersize=markerSize, markeredgewidth=1.0)
+        h2 = ax.plot(y_pred, xs, ".", mec="black", mfc="#1f77b4",
+                     markersize=markerSize, markeredgewidth=1.0)
 
     # Legend
     if showLegend == True:
         if horizontal:
-            ax.legend([h2[0], h1[0], h3[0]], ["Ground Truth", "Prediction", "+/- " + str(num_stds_confidence_bound) + "\u03C3"], title = None, loc=2, frameon=False)
+            ax.legend([h2[0], h1[0], h3[0]], ["Ground Truth", "Prediction", "+/- " +
+                      str(num_stds_confidence_bound) + "\u03C3"], title=None, loc=2, frameon=False)
         if not horizontal:
-            ax.legend([h2[0], h1[0], h3[0]], ["Ground Truth", "Prediction", "+/- " + str(num_stds_confidence_bound) + "\u03C3"], title = None, loc=4, frameon=False)
+            ax.legend([h2[0], h1[0], h3[0]], ["Ground Truth", "Prediction", "+/- " +
+                      str(num_stds_confidence_bound) + "\u03C3"], title=None, loc=4, frameon=False)
 
     # Determine lims
     if ylims is None:
@@ -246,7 +258,7 @@ def plot_intervals_ordered(
 
         minVals = [intervals_lower, y_true_lower]
         maxVals = [intervals_upper, y_true_upper]
-        
+
         minVal = np.min(minVals)
         maxVal = np.max(maxVals)
 
@@ -268,8 +280,9 @@ def plot_intervals_ordered(
         ax.set_xlabel("Predicted Adsorption Energy (eV)")
 
     if showTitle == True:
-        ax.set_title("Ordered Prediction Intervals (Evidential Regression, " + lambdaSymbolStr + " = " + str(lamb) + ")")
-    
+        ax.set_title("Ordered Prediction Intervals (Evidential Regression, " +
+                     lambdaSymbolStr + " = " + str(lamb) + ")")
+
     if aspect_ratio is not None:
         ax.set_aspect(aspect_ratio / ax.get_data_ratio(), adjustable="box")
 
@@ -287,7 +300,7 @@ def filter_subset(input_list: List[List[Any]], n_subset: int, seed: Union[int, N
         List of all input lists with sizes reduced to n_subset.
     """
     assert type(n_subset) is int
-   
+
     # Set random number generation seed for reproducibility, if applicable.
     if seed is not None:
         assert type(seed) is int
@@ -310,7 +323,8 @@ def set_style(style_str: str = "default") -> NoReturn:
         style_str: string for style file.
     """
     if style_str == "default":
-        plt.style.use((pathlib.Path(__file__).parent / "matplotlibrc").resolve())
+        plt.style.use(
+            (pathlib.Path(__file__).parent / "matplotlibrc").resolve())
 
 
 def save_figure(
@@ -353,10 +367,11 @@ def update_rc(key_str: str, value: Any) -> NoReturn:
     """
     plt.rcParams.update({key_str: value})
 
+
 def determine_common_axes(axsGrid):
     """For showing multiple plots on a 1xN grid, find common x-axis and y-axis ranges
     for all the plots.
-    
+
     Args:
         axsGrid: 1xN list of axes objects in a plot grid
     """
@@ -389,6 +404,7 @@ def determine_common_axes(axsGrid):
 
     return common_lims
 
+
 def determine_common_colorbar(plot_data: Union[list, tuple]):
     """For showing multiple plots on a 1xN grid, determine a common color scheme for colorbars/heatmaps/etc.
 
@@ -415,4 +431,3 @@ def determine_common_colorbar(plot_data: Union[list, tuple]):
     common_lims = (common_Lower, common_Upper)
 
     return common_lims
-

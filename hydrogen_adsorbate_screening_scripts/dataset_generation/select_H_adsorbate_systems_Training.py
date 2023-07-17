@@ -20,11 +20,14 @@ gigPerLMDB = gigSize * numGigs
 
 train_H_Adsorbate_Path = sysMetaDataPath
 train_H_Adsorbate_File = "Train_H_Adsorbate_data.lmdb"
-train_H_Adsorbate = os.path.join(train_H_Adsorbate_Path, train_H_Adsorbate_File)
+train_H_Adsorbate = os.path.join(
+    train_H_Adsorbate_Path, train_H_Adsorbate_File)
 train_H_Adsorbate_sid_File = "Train_H_Adsorbate_sid.csv"
-train_H_Adsorbate_sid = os.path.join(train_H_Adsorbate_Path, train_H_Adsorbate_sid_File)
+train_H_Adsorbate_sid = os.path.join(
+    train_H_Adsorbate_Path, train_H_Adsorbate_sid_File)
 train_H_Adsorbate_Systems_File = "Train_H_Adsorbate_systems.csv"
-train_H_Adsorbate_Systems = os.path.join(train_H_Adsorbate_Path, train_H_Adsorbate_Systems_File)
+train_H_Adsorbate_Systems = os.path.join(
+    train_H_Adsorbate_Path, train_H_Adsorbate_Systems_File)
 
 print("Path for OC20 Meta Data:")
 print(sysMetaData)
@@ -64,7 +67,8 @@ with open(subselectSystem, "w") as subselectSystemLog:
 relevant_sids.sort()
 relevant_sids = [str(sid) for sid in relevant_sids]
 
-train_env = lmdb.open(train, map_size=gigPerLMDB, subdir=False, readonly=True, lock=False, map_async=True, readahead=False, meminit=False)
+train_env = lmdb.open(train, map_size=gigPerLMDB, subdir=False, readonly=True,
+                      lock=False, map_async=True, readahead=False, meminit=False)
 train_numKeys = train_env.stat()["entries"]
 train_keyRange = range(train_numKeys)
 print("Number of raw entries in Train:")
@@ -84,30 +88,32 @@ LMDB_ind_to_train_sid_mapping = {}
 for ind in range(len(train_Dataset)):
     indKey = str(ind)
     sidValue = str(train_Dataset[ind].sid)
-    LMDB_ind_to_train_sid_mapping[sidValue]=indKey
+    LMDB_ind_to_train_sid_mapping[sidValue] = indKey
 
 # Open the Train dataset with the LMDB tool
 with train_env.begin() as txn_old:
     # Open a new LMDB file that we can write sub-selected adsorbate/alloy systems to.
-    cop = lmdb.open(train_H_Adsorbate, map_size=gigPerLMDB, subdir=False, readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
-    
+    cop = lmdb.open(train_H_Adsorbate, map_size=gigPerLMDB, subdir=False,
+                    readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
+
     # With the new LMDB file open,
     with cop.begin(write=True) as txn_new:
         counter = 0
-        
+
         # For each relevant sid,
         for sidInd in range(len(relevant_sids)):
             # Get the relevant sid,
             sidVal = relevant_sids[sidInd]
             # Get the Train row_ind associated with the sid via the dictionary mapping
             try:
-                train_ind = LMDB_ind_to_train_sid_mapping[sidVal].encode("ascii")
+                train_ind = LMDB_ind_to_train_sid_mapping[sidVal].encode(
+                    "ascii")
             except:
                 continue
-            
+
             # Get the relevant adsorbate/alloy system based on the Train row_ind
             relevantSystem = txn_old.get(key=train_ind)
-            
+
             # If the relevant adsorbate/alloy system is inside the Train, copy the system
             # over to our new sub-selected LMDB file of only the relevant adsorbate/alloy systems
             if relevantSystem != None:
@@ -118,7 +124,7 @@ with train_env.begin() as txn_old:
                 print("(New_Index, sid)" + str((str(counter), sidVal)))
                 counter += 1
                 relevant_sids_train.append(sidVal)
-    
+
     print("Sub-selection of Systems Completed. Description:")
     print(str(cop.stat()) + "\n")
 
@@ -137,4 +143,5 @@ with open(train_H_Adsorbate_Systems, "w") as subselectDescLog:
     systemWriter = csv.writer(subselectDescLog)
     for sid in relevant_sids_train:
         sid = "random" + str(sid)
-        systemWriter.writerow([sid.replace("random", ""), str(sysMetaDataContents[sid])])
+        systemWriter.writerow(
+            [sid.replace("random", ""), str(sysMetaDataContents[sid])])

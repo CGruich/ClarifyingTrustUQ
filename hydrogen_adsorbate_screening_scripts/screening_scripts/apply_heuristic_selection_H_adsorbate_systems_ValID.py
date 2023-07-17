@@ -5,7 +5,8 @@ import pandas as pd
 import torch
 from ocpmodels.datasets import LmdbDataset
 
-def apply_heuristic_subselection(y_pred_and_std, sidList, y_pred_Lower, y_pred_Upper, stdDevTarget, y_pred_Label, y_std_Label, sid_Label = "sid"):
+
+def apply_heuristic_subselection(y_pred_and_std, sidList, y_pred_Lower, y_pred_Upper, stdDevTarget, y_pred_Label, y_std_Label, sid_Label="sid"):
     '''Applies UQ-guided heuristics to select adsorbate/alloy systems for further study.
 
     Arguments:
@@ -20,21 +21,26 @@ def apply_heuristic_subselection(y_pred_and_std, sidList, y_pred_Lower, y_pred_U
     Returns:
         relevantSystems: PANDAS Dataframe of sid/prediction/uncertainty of relevant systems matching heuristic criteria selection.
     '''
-    
+
     assert y_pred_Lower <= y_pred_Upper
 
     # Sub-select for systems we are interested in searching
     relevantSystems = y_pred_and_std.query(sid_Label + " in @sidList")
     # Of the systems interested, select predictions within a lower bound and upper bound
-    relevantSystems = relevantSystems[relevantSystems[y_pred_Label].between(y_pred_Lower, y_pred_Upper)]
-    print("Number of Predictions Matching Prediction Range: " + str(relevantSystems.shape[0]))
+    relevantSystems = relevantSystems[relevantSystems[y_pred_Label].between(
+        y_pred_Lower, y_pred_Upper)]
+    print("Number of Predictions Matching Prediction Range: " +
+          str(relevantSystems.shape[0]))
     # Of the systems selected, further select systems with uncertainty less than or equal to a specific value
-    relevantSystems = relevantSystems[relevantSystems[y_std_Label].between(0, stdDevTarget)]
-    print("Number of Predictions within Prediction Range <= Specified Uncertainty: " + str(relevantSystems.shape[0]))
-    
+    relevantSystems = relevantSystems[relevantSystems[y_std_Label].between(
+        0, stdDevTarget)]
+    print("Number of Predictions within Prediction Range <= Specified Uncertainty: " +
+          str(relevantSystems.shape[0]))
+
     return relevantSystems
 
-def retrieve_system_info(infoDF, sidList, sid_Label = "sid"):
+
+def retrieve_system_info(infoDF, sidList, sid_Label="sid"):
     ''' Retrieves any placeholder system info for systems based on system ID.
 
     Arguments:
@@ -52,6 +58,7 @@ def retrieve_system_info(infoDF, sidList, sid_Label = "sid"):
 
     return infoSubselectDF
 
+
 # Load the test target adsorption energies for calculation of the absolute errors via scikit-learn mean absolute error function
 yTestPath = "ValID_H_Adsorbate_data.lmdb"
 # SinglePointLmdbDataset accepts .lmdb files, unlike TrajectoryLmdbDataset which accepts a whole directory of files
@@ -59,15 +66,18 @@ targetEnergiesLMDBS = LmdbDataset({"src": yTestPath})
 
 # Get the energies and system ids of the test systems
 # NumPy array
-targetEnergiesNP = torch.tensor([data.y_relaxed for data in targetEnergiesLMDBS]).numpy()
-#NumPy array
-targetEnergiesSIDNP = torch.tensor([data.sid for data in targetEnergiesLMDBS]).numpy()
+targetEnergiesNP = torch.tensor(
+    [data.y_relaxed for data in targetEnergiesLMDBS]).numpy()
+# NumPy array
+targetEnergiesSIDNP = torch.tensor(
+    [data.sid for data in targetEnergiesLMDBS]).numpy()
 # List
 targetEnergiesSID = list(targetEnergiesSIDNP)
 # PANDAS Dataframes
 targetEnergiesPD = pd.DataFrame(targetEnergiesNP)
 targetEnergiesSIDPD = pd.DataFrame(targetEnergiesSIDNP)
-targetEnergiesPD = pd.concat([targetEnergiesSIDPD, targetEnergiesPD], axis=1, ignore_index=True)
+targetEnergiesPD = pd.concat(
+    [targetEnergiesSIDPD, targetEnergiesPD], axis=1, ignore_index=True)
 targetEnergiesPD.columns = ["sid", "Target (eV)"]
 targetEnergiesPD["sid"] = targetEnergiesPD["sid"].astype(str)
 
@@ -119,7 +129,8 @@ systemLogDF = pd.read_csv(systemLog, header=None, delimiter="^")
 systemLogDF.columns = ["System"]
 sidLogDF = pd.read_csv(sidLog, header=None)
 sidLogDF.columns = ["sid"]
-systemLogDF = pd.concat([sidLogDF["sid"], systemLogDF["System"]], axis=1, ignore_index=True)
+systemLogDF = pd.concat(
+    [sidLogDF["sid"], systemLogDF["System"]], axis=1, ignore_index=True)
 systemLogDF.columns = ["sid", "System"]
 systemDescriptionPD = systemLogDF
 systemDescriptionPD["sid"] = systemDescriptionPD["sid"].str.strip("random")
@@ -128,9 +139,11 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(
+        predictionFilePathList[ind], predictionFileNameList[ind])
     predictionFileList.append(predictionFilePath)
-    uncertaintyFilePath = os.path.join(uncertaintyFilePathList[ind], uncertaintyFileNameList[ind])
+    uncertaintyFilePath = os.path.join(
+        uncertaintyFilePathList[ind], uncertaintyFileNameList[ind])
     uncertaintyFileList.append(uncertaintyFilePath)
 
 print("Prediction Files:")
@@ -157,37 +170,46 @@ predictionPDList = []
 
 for ind in range(len(predictionFileList)):
     predictionPD = pd.read_csv(predictionFileList[ind])[predictionLabels[ind]]
-    uncertaintyPD = pd.read_csv(uncertaintyFileList[ind])[uncertaintyLabels[ind]]
+    uncertaintyPD = pd.read_csv(uncertaintyFileList[ind])[
+        uncertaintyLabels[ind]]
     sidPD = pd.read_csv(predictionFileList[ind])["sid"]
-    combinedPD = pd.concat([sidPD, predictionPD, uncertaintyPD], axis=1, ignore_index=True)
+    combinedPD = pd.concat(
+        [sidPD, predictionPD, uncertaintyPD], axis=1, ignore_index=True)
     combinedPD.columns = ["sid", predictionLabels[ind], uncertaintyLabels[ind]]
     predictionPDList.append(combinedPD)
 
 for ind in range(len(predictionPDList)):
     relevantSystems = apply_heuristic_subselection(predictionPDList[ind], targetEnergiesSID, -0.1, 0.1, 0.05,
-            y_pred_Label = predictionLabels[ind], y_std_Label = uncertaintyLabels[ind], sid_Label = "sid")
+                                                   y_pred_Label=predictionLabels[ind], y_std_Label=uncertaintyLabels[ind], sid_Label="sid")
     relevantSystems = relevantSystems.reset_index(drop=True)
-    
-    
+
     screenedSIDs = list(relevantSystems["sid"].to_numpy())
     screenedSIDs = [str(sid) for sid in screenedSIDs]
-    screenedTargets = retrieve_system_info(targetEnergiesPD, screenedSIDs, sid_Label = "sid")
+    screenedTargets = retrieve_system_info(
+        targetEnergiesPD, screenedSIDs, sid_Label="sid")
     print(screenedTargets)
-    screenedTargets = pd.DataFrame(screenedTargets["Target (eV)"].to_numpy(), columns = ["Target (eV)"])
+    screenedTargets = pd.DataFrame(
+        screenedTargets["Target (eV)"].to_numpy(), columns=["Target (eV)"])
 
-    relevantSystems = pd.concat([relevantSystems, screenedTargets], axis=1, ignore_index=True)
-    relevantSystems.columns = ["sid", predictionLabels[ind], uncertaintyLabels[ind], "Target (eV)"]
+    relevantSystems = pd.concat(
+        [relevantSystems, screenedTargets], axis=1, ignore_index=True)
+    relevantSystems.columns = [
+        "sid", predictionLabels[ind], uncertaintyLabels[ind], "Target (eV)"]
     print(relevantSystems)
-    
-    relevantSystemDescriptions = retrieve_system_info(systemDescriptionPD, screenedSIDs, sid_Label = "sid")
-    
+
+    relevantSystemDescriptions = retrieve_system_info(
+        systemDescriptionPD, screenedSIDs, sid_Label="sid")
+
     saveFileName = "SUBSELECTED_" + uncertaintyFileNameList[ind]
-    saveSystemDescriptionName = "SUBSELECTED_DESC_" + uncertaintyFileNameList[ind]
+    saveSystemDescriptionName = "SUBSELECTED_DESC_" + \
+        uncertaintyFileNameList[ind]
 
     saveFile = os.path.join(predictionFilePathList[ind], saveFileName)
-    saveDescriptionFile = os.path.join(predictionFilePathList[ind], saveSystemDescriptionName)
+    saveDescriptionFile = os.path.join(
+        predictionFilePathList[ind], saveSystemDescriptionName)
 
     relevantSystems.to_csv(saveFile, header=True, index=False)
     saveFile = os.path.join(uncertaintyFilePathList[ind], saveFileName)
     relevantSystems.to_csv(saveFile, header=True, index=False)
-    relevantSystemDescriptions.to_csv(saveDescriptionFile, header=True, index=False)
+    relevantSystemDescriptions.to_csv(
+        saveDescriptionFile, header=True, index=False)

@@ -18,11 +18,14 @@ gigPerLMDB = gigSize * numGigs
 
 valOOD_Cat_H_Adsorbate_Path = sysMetaDataPath
 valOOD_Cat_H_Adsorbate_File = "ValOOD_Cat_H_Adsorbate_data.lmdb"
-valOOD_Cat_H_Adsorbate = os.path.join(valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_File)
+valOOD_Cat_H_Adsorbate = os.path.join(
+    valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_File)
 valOOD_Cat_H_Adsorbate_sid_File = "ValOOD_Cat_H_Adsorbate_sid.csv"
-valOOD_Cat_H_Adsorbate_sid = os.path.join(valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_sid_File)
+valOOD_Cat_H_Adsorbate_sid = os.path.join(
+    valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_sid_File)
 valOOD_Cat_H_Adsorbate_Systems_File = "ValOOD_Cat_H_Adsorbate_systems.csv"
-valOOD_Cat_H_Adsorbate_Systems = os.path.join(valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_Systems_File)
+valOOD_Cat_H_Adsorbate_Systems = os.path.join(
+    valOOD_Cat_H_Adsorbate_Path, valOOD_Cat_H_Adsorbate_Systems_File)
 
 print("Path for OC20 Meta Data:")
 print(sysMetaData)
@@ -61,7 +64,8 @@ with open(subselectSystem, "w") as subselectSystemLog:
 relevant_sids.sort()
 relevant_sids = [str(sid) for sid in relevant_sids]
 
-valOOD_Cat_env = lmdb.open(valOOD_Cat, map_size=gigPerLMDB, subdir=False, readonly=True, lock=False, map_async=True, readahead=False, meminit=False)
+valOOD_Cat_env = lmdb.open(valOOD_Cat, map_size=gigPerLMDB, subdir=False,
+                           readonly=True, lock=False, map_async=True, readahead=False, meminit=False)
 valOOD_Cat_numKeys = valOOD_Cat_env.stat()["entries"]
 valOOD_Cat_keyRange = range(valOOD_Cat_numKeys)
 print("Number of raw entries in dataset:")
@@ -81,30 +85,32 @@ LMDB_ind_to_valOOD_Cat_sid_mapping = {}
 for ind in range(len(valOOD_Cat_Dataset)):
     indKey = str(ind)
     sidValue = str(valOOD_Cat_Dataset[ind].sid)
-    LMDB_ind_to_valOOD_Cat_sid_mapping[sidValue]=indKey
+    LMDB_ind_to_valOOD_Cat_sid_mapping[sidValue] = indKey
 
 # Open the ValID dataset with the LMDB tool
 with valOOD_Cat_env.begin() as txn_old:
     # Open a new LMDB file that we can write sub-selected adsorbate/alloy systems to.
-    cop = lmdb.open(valOOD_Cat_H_Adsorbate, map_size=gigPerLMDB, subdir=False, readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
-    
+    cop = lmdb.open(valOOD_Cat_H_Adsorbate, map_size=gigPerLMDB, subdir=False,
+                    readonly=False, map_async=True, lock=True, readahead=False, meminit=False)
+
     # With the new LMDB file open,
     with cop.begin(write=True) as txn_new:
         counter = 0
-        
+
         # For each relevant sid,
         for sidInd in range(len(relevant_sids)):
             # Get the relevant sid,
             sidVal = relevant_sids[sidInd]
             # Get the ValID row_ind associated with the sid via the dictionary mapping
             try:
-                valOOD_Cat_ind = LMDB_ind_to_valOOD_Cat_sid_mapping[sidVal].encode("ascii")
+                valOOD_Cat_ind = LMDB_ind_to_valOOD_Cat_sid_mapping[sidVal].encode(
+                    "ascii")
             except:
                 continue
-            
+
             # Get the relevant adsorbate/alloy system based on the ValID row_ind
             relevantSystem = txn_old.get(key=valOOD_Cat_ind)
-            
+
             # If the relevant adsorbate/alloy system is inside the Val_ID, copy the system
             # over to our new sub-selected LMDB file of only the relevant adsorbate/alloy systems
             if relevantSystem != None:
@@ -115,7 +121,7 @@ with valOOD_Cat_env.begin() as txn_old:
                 print("(New_Index, sid)" + str((str(counter), sidVal)))
                 counter += 1
                 relevant_sids_valOOD_Cat.append(sidVal)
-    
+
     print("Sub-selection of Systems Completed. Description:")
     print(str(cop.stat()) + "\n")
 
@@ -134,5 +140,5 @@ with open(valOOD_Cat_H_Adsorbate_Systems, "w") as subselectDescLog:
     systemWriter = csv.writer(subselectDescLog)
     for sid in relevant_sids_valOOD_Cat:
         sid = "random" + str(sid)
-        systemWriter.writerow([sid.replace("random", ""), str(sysMetaDataContents[sid])])
-        
+        systemWriter.writerow(
+            [sid.replace("random", ""), str(sysMetaDataContents[sid])])

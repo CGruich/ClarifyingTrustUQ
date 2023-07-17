@@ -19,78 +19,71 @@ This involves three changes:
     (3) A custom evidential loss function
 """
 
-import torch
-import torch.nn as nn
-from torch_geometric.nn import MessagePassing, global_mean_pool, radius_graph
-from torch_geometric.nn.models.schnet import GaussianSmearing
-
-from ocpmodels.common.registry import registry
-from ocpmodels.common.utils import (
-    conditional_grad,
-    get_pbc_distances,
-    radius_graph_pbc,
-)
-from ocpmodels.datasets.embeddings import KHOT_EMBEDDINGS, QMOF_KHOT_EMBEDDINGS
-from ocpmodels.models.base import BaseModel
-
-import math
-import numpy as np
 
 # One of the steps to implementing DER is creating a custom output layer for the model
 # This custom output layer has the same weight/bias initialization of a standard dense, linear PyTorch layer
 # Except, it calculates evidential distribution parameters
+
+
+
+
+from ocpmodels.datasets.embeddings import KHOT_EMBEDDINGS, QMOF_KHOT_EMBEDDINGS
+from ocpmodels.models.base import BaseModel
+import math
+import numpy as np
 class DenseNormalGamma(torch.nn.Module):
     # Default output size is 4 because there are 4 parameters to the evidential distribution
-    def __init__(self, inputSize, outputSize = 4):
+    def __init__(self, inputSize, outputSize=4):
         super().__init__()
         self.inputSize, self.outputSize = inputSize, outputSize
-        
+
         # Neural network weight tensor
         weights = torch.Tensor(inputSize, outputSize)
 
         # torch.nn.Parameter() converts a tensort to a special type of tensor that can be used as a module parameter
         self.weights = torch.nn.Parameter(weights)
-        
+
         # Bias tensor
         bias = torch.Tensor(outputSize)
-        
+
         # Turn the bias into a module parameter as well
         self.bias = torch.nn.Parameter(bias)
-        
+
         # Initializing the weights and biases
         # Weight initialization (equivalent to standard dense, linear PyTorch layer)
-        torch.nn.init.kaiming_uniform_(self.weights, a = math.sqrt(5))
+        torch.nn.init.kaiming_uniform_(self.weights, a=math.sqrt(5))
         fan_in, _ = torch.nn.init._calculate_fan_in_and_fan_out(self.weights)
         bound = 1/np.sqrt(fan_in)
-        
+
         # Bias initialization (equivalent to standard dense, linear PyTorch layer)
         torch.nn.init.uniform_(self.bias, -bound, bound)
-    
+
     # Define a new function called evidence()
     # All this function does is perform SoftPlus on the evidential distribution parameters.
     # This has the effect of ensuring all parameters are positive at all times
     def evidence(self, x):
         return torch.nn.functional.softplus(x)
-    
+
     # Now a new function needs to be defined to describe how data is forward-passed through the model
     def forward(self, x):
         # Multiply the incoming data by the neural network edge weights
         self.weightMultipliedData = torch.matmul(x, self.weights)
         # Add the neural network node biases
         self.biasesAdded = torch.add(self.weightMultipliedData, self.bias)
-        
-        # Split the output layer (which contains evidential hyperdist. parameters) 
+
+        # Split the output layer (which contains evidential hyperdist. parameters)
         # into individual evidential distribution parameters
-        mu, logv, logalpha, logbeta = torch.split(self.biasesAdded, 1, dim = 1)
-        
+        mu, logv, logalpha, logbeta = torch.split(self.biasesAdded, 1, dim=1)
+
         # Ensure positive values to the hyperdistribution parameters
         logv = self.evidence(logv)
         logalpha = self.evidence(logalpha) + 1
         logbeta = self.evidence(logbeta)
-        
+
         # Return the overall output of the positive-ensured hyperdistr. parameters.
         # This is our forward pass result.
-        return torch.cat([mu, logv, logalpha, logbeta], dim = 1)
+        return torch.cat([mu, logv, logalpha, logbeta], dim=1)
+
 
 @registry.register_model("cgcnn_dropout_evidential_v2")
 class CGCNN(BaseModel):
@@ -157,9 +150,9 @@ class CGCNN(BaseModel):
         # Use dropout during model prediction (post-training)
         dropout_on_inference=False,
         # Use evidential deep learning
-        use_evidence = False,
+        use_evidence=False,
         # Evidential regularization term hyperparameters
-        lamb = 0.0
+        lamb=0.0
     ):
         super(CGCNN, self).__init__(num_atoms, bond_feat_dim, num_targets)
         self.regress_forces = regress_forces
@@ -234,7 +227,7 @@ class CGCNN(BaseModel):
         if self.use_dropout:
             fc_out_layers = []
             if self.use_evidence:
-                fc_out_layers.append(DenseNormalGamma(inputSize = fc_feat_size))
+                fc_out_layers.append(DenseNormalGamma(inputSize=fc_feat_size))
             else:
                 fc_out_layers.append(nn.Linear(fc_feat_size, self.num_targets))
             fc_out_layers.append(
@@ -245,10 +238,10 @@ class CGCNN(BaseModel):
         # If dropout is specified via use_dropout = False
         else:
             if self.use_evidence:
-                self.fc_out = DenseNormalGamma(inputSize = fc_feat_size)
+                self.fc_out = DenseNormalGamma(inputSize=fc_feat_size)
             else:
                 self.fc_out = nn.Linear(fc_feat_size, self.num_targets)
-        
+
         self.cutoff = cutoff
         self.distance_expansion = GaussianSmearing(0.0, cutoff, num_gaussians)
 

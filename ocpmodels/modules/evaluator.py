@@ -67,11 +67,11 @@ class Evaluator:
         "is2re_evidential": "energy_nll"
     }
 
-    def __init__(self, task=None, lamb = 0.0):
+    def __init__(self, task=None, lamb=0.0):
         assert task in ["s2ef", "is2rs", "is2re", "is2re_evidential"]
         self.task = task
         self.metric_fn = self.task_metrics[task]
-        
+
         # Regularization term for deep evidential regression
         self.lamb = lamb
 
@@ -83,7 +83,7 @@ class Evaluator:
                 # Also ensure that the target is adsorption energy.
                 # Note: Evidential hyperdistribution parameters are only in the predictions, not the target.
                 assert self.task_attributes["is2re"][0] in target
-                
+
                 # Ensure # of predicted samples equals number of targets
                 assert prediction[attr].shape == target[attr].shape
 
@@ -136,47 +136,62 @@ class Evaluator:
 def energy_mae(prediction, target):
     return absolute_error(prediction["energy"], target["energy"])
 
+
 def energy_mse(prediction, target):
     return squared_error(prediction["energy"], target["energy"])
+
 
 def energy_nll(prediction, target, lamb):
     return evidential_error(prediction, target["energy"], lamb)
 
+
 def forcesx_mae(prediction, target):
     return absolute_error(prediction["forces"][:, 0], target["forces"][:, 0])
+
 
 def forcesx_mse(prediction, target):
     return squared_error(prediction["forces"][:, 0], target["forces"][:, 0])
 
+
 def forcesy_mae(prediction, target):
     return absolute_error(prediction["forces"][:, 1], target["forces"][:, 1])
+
 
 def forcesy_mse(prediction, target):
     return squared_error(prediction["forces"][:, 1], target["forces"][:, 1])
 
+
 def forcesz_mae(prediction, target):
     return absolute_error(prediction["forces"][:, 2], target["forces"][:, 2])
+
 
 def forcesz_mse(prediction, target):
     return squared_error(prediction["forces"][:, 2], target["forces"][:, 2])
 
+
 def forces_mae(prediction, target):
     return absolute_error(prediction["forces"], target["forces"])
+
 
 def forces_mse(prediction, target):
     return squared_error(prediction["forces"], target["forces"])
 
+
 def forces_cos(prediction, target):
     return cosine_similarity(prediction["forces"], target["forces"])
+
 
 def forces_magnitude(prediction, target):
     return magnitude_error(prediction["forces"], target["forces"], p=2)
 
+
 def positions_mae(prediction, target):
     return absolute_error(prediction["positions"], target["positions"])
 
+
 def positions_mse(prediction, target):
     return squared_error(prediction["positions"], target["positions"])
+
 
 def energy_force_within_threshold(prediction, target):
     # Note that this natoms should be the count of free atoms we evaluate over.
@@ -198,7 +213,7 @@ def energy_force_within_threshold(prediction, target):
     for i, n in enumerate(target["natoms"]):
         if (
             error_energy[i] < e_thresh
-            and error_forces[start_idx : start_idx + n].max() < f_thresh
+            and error_forces[start_idx: start_idx + n].max() < f_thresh
         ):
             success += 1
         start_idx += n
@@ -311,7 +326,8 @@ def magnitude_error(prediction, target, p=2):
         "numel": error.numel(),
     }
 
-def evidential_error(prediction, target, lamb = 0.0):
+
+def evidential_error(prediction, target, lamb=0.0):
     gamma, v, alpha, beta = prediction["energy"], prediction["v"], prediction["alpha"], prediction["beta"]
 
     twoBlambda = 2*beta*(1 + v)

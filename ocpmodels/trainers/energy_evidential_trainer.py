@@ -57,8 +57,8 @@ class EnergyTrainer(BaseTrainer):
             (default: :obj:`{}`)
 
     Additional Args:
-    	use_evidence (bool, optional): Whether to use evidential deep learning or not.
-    	    (default: :obj:'False')
+        use_evidence (bool, optional): Whether to use evidential deep learning or not.
+            (default: :obj:'False')
         lamb (float, optional): Value in range [0.0, 1.0] that weights the regularization term for deep evidential regression
             (default: :obj:'0.0') NO REGULARIZATION
     """
@@ -84,9 +84,9 @@ class EnergyTrainer(BaseTrainer):
         slurm={},
         noddp=False,
         # Use evidential deep learning
-        use_evidence = False,
+        use_evidence=False,
         # Evidential regression regularizer hyperparameter
-        lamb = 0.0,
+        lamb=0.0,
     ):
         super().__init__(
             task=task,
@@ -110,13 +110,12 @@ class EnergyTrainer(BaseTrainer):
             # See evaluator.py for more details.
             name="is2re_evidential",
             # Use evidential deep learning
-            use_evidence = use_evidence,
+            use_evidence=use_evidence,
             # Evidential regression regularizer hyperparameter
-            lamb = lamb,
+            lamb=lamb,
             slurm=slurm,
             noddp=noddp,
         )
-        
 
     def load_task(self):
         logging.info(f"Loading dataset: {self.config['task']['dataset']}")
@@ -164,10 +163,11 @@ class EnergyTrainer(BaseTrainer):
 
         if self.normalizers is not None and "target" in self.normalizers:
             self.normalizers["target"].to(self.device)
-        
+
         # If using deep evidential regression:
         if self.use_evidence == True:
-            predictions = {"id": [], "energy": [], "v": [], "alpha": [], "beta": []}
+            predictions = {"id": [], "energy": [],
+                           "v": [], "alpha": [], "beta": []}
         else:
             predictions = {"id": [], "energy": []}
 
@@ -180,17 +180,17 @@ class EnergyTrainer(BaseTrainer):
         ):
             with torch.cuda.amp.autocast(enabled=self.scaler is not None):
                 out = self._forward(batch)
-            
+
             # If using deep evidential regression:
             if self.use_evidence == True:
                 if self.normalizers is not None and "target" in self.normalizers:
                     out["energy"] = self.normalizers["target"].denorm(
-                            out["energy"]
+                        out["energy"]
                     )
 
                 if per_image:
                     predictions["id"].extend(
-                            [str(i) for i in batch[0].sid.tolist()]
+                        [str(i) for i in batch[0].sid.tolist()]
                     )
                     predictions["energy"].extend(out["energy"].tolist())
                     predictions["v"].extend(out["v"].tolist())
@@ -207,20 +207,21 @@ class EnergyTrainer(BaseTrainer):
             else:
                 if self.normalizers is not None and "target" in self.normalizers:
                     out["energy"] = self.normalizers["target"].denorm(
-                            out["energy"]
+                        out["energy"]
                     )
 
                 if per_image:
                     predictions["id"].extend(
-                            [str(i) for i in batch[0].sid.tolist()]
-                            )
+                        [str(i) for i in batch[0].sid.tolist()]
+                    )
                     predictions["energy"].extend(out["energy"].tolist())
                 else:
                     predictions["energy"] = out["energy"].detach()
                     return predictions
-        
+
         if self.use_evidence == True:
-            self.save_results(predictions, results_file, keys=["energy", "v", "alpha", "beta"])
+            self.save_results(predictions, results_file, keys=[
+                              "energy", "v", "alpha", "beta"])
         else:
             self.save_results(predictions, results_file, keys=["energy"])
 
@@ -368,15 +369,15 @@ class EnergyTrainer(BaseTrainer):
         # If performing deep evidential regression:
         if self.use_evidence == True:
             return {
-                    # Use softplus to ensure positive hyperdistribution values during training.
-                    "energy": output[:, 0],
-                    "v": output[:, 1],
-                    "alpha": output[:, 2],
-                    "beta": output[:, 3],
+                # Use softplus to ensure positive hyperdistribution values during training.
+                "energy": output[:, 0],
+                "v": output[:, 1],
+                "alpha": output[:, 2],
+                "beta": output[:, 3],
             }
         else:
             return {
-                    "energy": output,
+                "energy": output,
             }
 
     def _compute_loss(self, out, batch_list):
@@ -389,7 +390,7 @@ class EnergyTrainer(BaseTrainer):
             target_normed = self.normalizers["target"].norm(energy_target)
         else:
             target_normed = energy_target
-        
+
         if self.use_evidence == True:
             loss = self.loss_fn["energy"](out, target_normed)
         else:

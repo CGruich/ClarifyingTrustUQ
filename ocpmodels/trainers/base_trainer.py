@@ -67,8 +67,8 @@ class BaseTrainer(ABC):
         amp=False,
         cpu=False,
         # Use evidential learning
-        use_evidence = False,
-        lamb = 0.0,
+        use_evidence=False,
+        lamb=0.0,
         name="base_trainer",
         slurm={},
         noddp=False,
@@ -202,9 +202,9 @@ class BaseTrainer(ABC):
         if distutils.is_master():
             print(yaml.dump(self.config, default_flow_style=False))
         self.load()
-        
+
         self.lamb = self.config["model_attributes"].get("lamb", 0.0)
-        self.evaluator = Evaluator(task=name, lamb = self.lamb)
+        self.evaluator = Evaluator(task=name, lamb=self.lamb)
 
     def load(self):
         self.load_seed_from_config()
@@ -376,7 +376,8 @@ class BaseTrainer(ABC):
             logging.info(f"Loading model: {self.config['model']}")
 
         # Check to see if evidential regression is enabled or not.
-        self.use_evidence = self.config["model_attributes"].get("use_evidence", False)
+        self.use_evidence = self.config["model_attributes"].get(
+            "use_evidence", False)
         self.lamb = self.config["model_attributes"].get("lamb", 0.0)
 
         # If using deep evidential regression, assert that the regularization hyperparameter is properly specified.
@@ -483,17 +484,17 @@ class BaseTrainer(ABC):
                 self.loss_fn[loss] = AtomwiseL2Loss()
             # For using deep evidential regression,
             elif loss_name == "energy_nll":
-                self.loss_fn[loss] = EvidentialLoss(lamb = self.lamb)
+                self.loss_fn[loss] = EvidentialLoss(lamb=self.lamb)
             else:
                 raise NotImplementedError(
                     f"Unknown loss function name: {loss_name}"
                 )
             self.loss_fn[loss] = DDPLoss(self.loss_fn[loss])
-            
+
     def load_optimizer(self):
         optimizer = self.config["optim"].get("optimizer", "AdamW")
         optimizer = getattr(optim, optimizer)
-        
+
         if self.config["optim"].get("weight_decay", 0) > 0:
 
             # Do not regularize bias etc.
