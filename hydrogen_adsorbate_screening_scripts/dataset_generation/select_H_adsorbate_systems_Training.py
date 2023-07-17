@@ -20,11 +20,9 @@ gigPerLMDB = gigSize * numGigs
 
 train_H_Adsorbate_Path = sysMetaDataPath
 train_H_Adsorbate_File = 'Train_H_Adsorbate_data.lmdb'
-train_H_Adsorbate = os.path.join(
-    train_H_Adsorbate_Path, train_H_Adsorbate_File)
+train_H_Adsorbate = os.path.join(train_H_Adsorbate_Path, train_H_Adsorbate_File)
 train_H_Adsorbate_sid_File = 'Train_H_Adsorbate_sid.csv'
-train_H_Adsorbate_sid = os.path.join(
-    train_H_Adsorbate_Path, train_H_Adsorbate_sid_File)
+train_H_Adsorbate_sid = os.path.join(train_H_Adsorbate_Path, train_H_Adsorbate_sid_File)
 train_H_Adsorbate_Systems_File = 'Train_H_Adsorbate_systems.csv'
 train_H_Adsorbate_Systems = os.path.join(
     train_H_Adsorbate_Path, train_H_Adsorbate_Systems_File
@@ -125,8 +123,7 @@ with train_env.begin() as txn_old:
             sidVal = relevant_sids[sidInd]
             # Get the Train row_ind associated with the sid via the dictionary mapping
             try:
-                train_ind = LMDB_ind_to_train_sid_mapping[sidVal].encode(
-                    'ascii')
+                train_ind = LMDB_ind_to_train_sid_mapping[sidVal].encode('ascii')
             except:
                 continue
 
@@ -162,5 +159,4 @@ with open(train_H_Adsorbate_Systems, 'w') as subselectDescLog:
     systemWriter = csv.writer(subselectDescLog)
     for sid in relevant_sids_train:
         sid = 'random' + str(sid)
-        systemWriter.writerow(
-            [sid.replace('random', ""), str(sysMetaDataContents[sid])])
+        systemWriter.writerow([sid.replace('random', ""), str(sysMetaDataContents[sid])])

@@ -25,12 +25,12 @@ This involves three changes:
 # Except, it calculates evidential distribution parameters
 
 
-
-
 from ocpmodels.datasets.embeddings import KHOT_EMBEDDINGS, QMOF_KHOT_EMBEDDINGS
 from ocpmodels.models.base import BaseModel
 import math
 import numpy as np
+
+
 class DenseNormalGamma(torch.nn.Module):
     # Default output size is 4 because there are 4 parameters to the evidential distribution
     def __init__(self, inputSize, outputSize=4):
@@ -187,8 +187,7 @@ class CGCNN(BaseModel):
 
         self.convs = nn.ModuleList(
             [
-                CGCNNConv(node_dim=atom_embedding_size,
-                          edge_dim=bond_feat_dim, cutoff=cutoff,)
+                CGCNNConv(node_dim=atom_embedding_size, edge_dim=bond_feat_dim, cutoff=cutoff,)
                 for _ in range(num_graph_conv_layers)
             ]
         )
@@ -204,8 +203,7 @@ class CGCNN(BaseModel):
                 for _ in range(num_fc_layers - 1):
                     layers.append(nn.Linear(fc_feat_size, fc_feat_size))
                     # Add dropout here with dropout rate stored in dropout_rate
-                    layers.append(torch.nn.Dropout(
-                        p=self.dropout_rate, inplace=False))
+                    layers.append(torch.nn.Dropout(p=self.dropout_rate, inplace=False))
                     layers.append(nn.Softplus())
                 self.fcs = nn.Sequential(*layers)
 
@@ -226,8 +224,7 @@ class CGCNN(BaseModel):
                 fc_out_layers.append(DenseNormalGamma(inputSize=fc_feat_size))
             else:
                 fc_out_layers.append(nn.Linear(fc_feat_size, self.num_targets))
-            fc_out_layers.append(torch.nn.Dropout(
-                p=dropout_rate, inplace=False))
+            fc_out_layers.append(torch.nn.Dropout(p=dropout_rate, inplace=False))
             self.fc_out = nn.Sequential(*fc_out_layers)
 
         # If dropout is specified via use_dropout = False
@@ -250,8 +247,7 @@ class CGCNN(BaseModel):
         pos = data.pos
 
         if self.otf_graph:
-            edge_index, cell_offsets, neighbors = radius_graph_pbc(
-                data, self.cutoff, 50)
+            edge_index, cell_offsets, neighbors = radius_graph_pbc(data, self.cutoff, 50)
             data.edge_index = edge_index
             data.cell_offsets = cell_offsets
             data.neighbors = neighbors
@@ -264,8 +260,7 @@ class CGCNN(BaseModel):
             data.edge_index = out['edge_index']
             distances = out['distances']
         else:
-            data.edge_index = radius_graph(
-                data.pos, r=self.cutoff, batch=data.batch)
+            data.edge_index = radius_graph(data.pos, r=self.cutoff, batch=data.batch)
             row, col = data.edge_index
             distances = (pos[row] - pos[col]).norm(dim=-1)
 
@@ -342,8 +337,7 @@ class CGCNNConv(MessagePassing):
             edge_index has shape [2, num_edges]
             edge_attr is [num_edges, edge_feat_size]
         """
-        out = self.propagate(
-            edge_index, x=x, edge_attr=edge_attr, size=(x.size(0), x.size(0)))
+        out = self.propagate(edge_index, x=x, edge_attr=edge_attr, size=(x.size(0), x.size(0)))
         out = nn.Softplus()(self.ln1(out) + x)
         return out
 

@@ -127,8 +127,7 @@ class EnergyTrainer(BaseTrainer):
         if distutils.is_master() and not disable_tqdm:
             logging.info('Predicting on test.')
         assert isinstance(
-            loader, (torch.utils.data.dataloader.DataLoader,
-                     torch_geometric.data.Batch,),
+            loader, (torch.utils.data.dataloader.DataLoader, torch_geometric.data.Batch,),
         )
         rank = distutils.get_rank()
 
@@ -161,8 +160,7 @@ class EnergyTrainer(BaseTrainer):
 
         # If using deep evidential regression:
         if self.use_evidence == True:
-            predictions = {'id': [], 'energy': [],
-                           'v': [], 'alpha': [], 'beta': []}
+            predictions = {'id': [], 'energy': [], 'v': [], 'alpha': [], 'beta': []}
         else:
             predictions = {'id': [], 'energy': []}
 
@@ -179,12 +177,10 @@ class EnergyTrainer(BaseTrainer):
             # If using deep evidential regression:
             if self.use_evidence == True:
                 if self.normalizers is not None and 'target' in self.normalizers:
-                    out['energy'] = self.normalizers['target'].denorm(
-                        out['energy'])
+                    out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
                 if per_image:
-                    predictions['id'].extend([str(i)
-                                             for i in batch[0].sid.tolist()])
+                    predictions['id'].extend([str(i) for i in batch[0].sid.tolist()])
                     predictions['energy'].extend(out['energy'].tolist())
                     predictions['v'].extend(out['v'].tolist())
                     predictions['alpha'].extend(out['alpha'].tolist())
@@ -199,20 +195,17 @@ class EnergyTrainer(BaseTrainer):
                     return predictions
             else:
                 if self.normalizers is not None and 'target' in self.normalizers:
-                    out['energy'] = self.normalizers['target'].denorm(
-                        out['energy'])
+                    out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
                 if per_image:
-                    predictions['id'].extend([str(i)
-                                             for i in batch[0].sid.tolist()])
+                    predictions['id'].extend([str(i) for i in batch[0].sid.tolist()])
                     predictions['energy'].extend(out['energy'].tolist())
                 else:
                     predictions['energy'] = out['energy'].detach()
                     return predictions
 
         if self.use_evidence == True:
-            self.save_results(predictions, results_file, keys=[
-                              'energy', 'v', 'alpha', 'beta'])
+            self.save_results(predictions, results_file, keys=['energy', 'v', 'alpha', 'beta'])
         else:
             self.save_results(predictions, results_file, keys=['energy'])
 
@@ -222,8 +215,7 @@ class EnergyTrainer(BaseTrainer):
         return predictions
 
     def train(self, disable_eval_tqdm=False):
-        eval_every = self.config['optim'].get(
-            'eval_every', len(self.train_loader))
+        eval_every = self.config['optim'].get('eval_every', len(self.train_loader))
         primary_metric = self.config['task'].get(
             'primary_metric', self.evaluator.task_primary_metric[self.name]
         )
@@ -255,24 +247,20 @@ class EnergyTrainer(BaseTrainer):
                 scale = self.scaler.get_scale() if self.scaler else 1.0
 
                 # Compute metrics.
-                self.metrics = self._compute_metrics(
-                    out, batch, self.evaluator, metrics={},)
-                self.metrics = self.evaluator.update(
-                    'loss', loss.item() / scale, self.metrics)
+                self.metrics = self._compute_metrics(out, batch, self.evaluator, metrics={},)
+                self.metrics = self.evaluator.update('loss', loss.item() / scale, self.metrics)
 
                 # Log metrics.
                 log_dict = {k: self.metrics[k]['metric'] for k in self.metrics}
                 log_dict.update(
-                    {'lr': self.scheduler.get_lr(), 'epoch': self.epoch,
-                     'step': self.step, }
+                    {'lr': self.scheduler.get_lr(), 'epoch': self.epoch, 'step': self.step,}
                 )
                 if (
                     self.step % self.config['cmd']['print_every'] == 0
                     and distutils.is_master()
                     and not self.is_hpo
                 ):
-                    log_str = ['{}: {:.2e}'.format(k, v)
-                               for k, v in log_dict.items()]
+                    log_str = ['{}: {:.2e}'.format(k, v) for k, v in log_dict.items()]
                     print(', '.join(log_str))
                     self.metrics = {}
 
@@ -283,8 +271,7 @@ class EnergyTrainer(BaseTrainer):
 
                 # Evaluate on val set after every `eval_every` iterations.
                 if self.step % eval_every == 0:
-                    self.save(checkpoint_file='checkpoint.pt',
-                              training_state=True)
+                    self.save(checkpoint_file='checkpoint.pt', training_state=True)
 
                     if self.val_loader is not None:
                         val_metrics = self.validate(
@@ -318,8 +305,7 @@ class EnergyTrainer(BaseTrainer):
 
                 if self.scheduler.scheduler_type == 'ReduceLROnPlateau':
                     if self.step % eval_every == 0:
-                        self.scheduler.step(
-                            metrics=val_metrics[primary_metric]['metric'],)
+                        self.scheduler.step(metrics=val_metrics[primary_metric]['metric'],)
                 else:
                     self.scheduler.step()
 
@@ -377,7 +363,6 @@ class EnergyTrainer(BaseTrainer):
         if self.normalizer.get('normalize_labels', False):
             out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
-        metrics = evaluator.eval(
-            out, {'energy': energy_target}, prev_metrics=metrics,)
+        metrics = evaluator.eval(out, {'energy': energy_target}, prev_metrics=metrics,)
 
         return metrics

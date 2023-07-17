@@ -58,8 +58,7 @@ def make_plots(
     fig, axs = plt.subplots(4, 3, figsize=(20, 20))
 
     # Figure supertitle
-    fig.suptitle(
-        '\nUncertainty Quantification Plots\n(MC Dropout)', fontsize=24)
+    fig.suptitle('\nUncertainty Quantification Plots\n(MC Dropout)', fontsize=24)
 
     print(axs)
 
@@ -77,8 +76,7 @@ def make_plots(
 
     # Make calibration plot
     axs[0][1] = uct.viz_MC_Dropout.plot_calibration(
-        pred_mean, pred_std, target, seed=subsetSeed, showTitle=showTitleChoice, ax=axs[
-            0][1]
+        pred_mean, pred_std, target, seed=subsetSeed, showTitle=showTitleChoice, ax=axs[0][1]
     )
 
     # Make sharpness plot
@@ -212,10 +210,8 @@ def make_plots(
 
     # Save figure
     if savefig:
-        uct.viz_MC_Dropout.save_figure(
-            plot_save_str, 'svg', white_background=True)
-        uct.viz_MC_Dropout.save_figure(
-            plot_save_str, 'png', white_background=True)
+        uct.viz_MC_Dropout.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_MC_Dropout.save_figure(plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TEST_TARGETS'
@@ -282,10 +278,8 @@ print(uncertaintyNP)
 # Save figure specification
 savefig = True
 
-mace = uct.mean_absolute_calibration_error(
-    predictionNP, uncertaintyNP, targetNP)
-rmsce = uct.root_mean_squared_calibration_error(
-    predictionNP, uncertaintyNP, targetNP)
+mace = uct.mean_absolute_calibration_error(predictionNP, uncertaintyNP, targetNP)
+rmsce = uct.root_mean_squared_calibration_error(predictionNP, uncertaintyNP, targetNP)
 ma = uct.miscalibration_area(predictionNP, uncertaintyNP, targetNP)
 
 # Whether to show the title and/or legend

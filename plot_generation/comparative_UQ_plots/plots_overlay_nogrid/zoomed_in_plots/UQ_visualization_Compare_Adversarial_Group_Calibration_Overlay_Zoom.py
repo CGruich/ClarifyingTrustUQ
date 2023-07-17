@@ -70,8 +70,7 @@ def make_plots(
     # Restricted sub-intervals up-to and inclusive of [0, 1]
     groupSizeLims = (0.0, 0.02)
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5),
-                            sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5), sharex=False, sharey=False)
 
     print(axs)
 
@@ -80,20 +79,17 @@ def make_plots(
 
     # Make calibration plot
     epistemicLabel = (
-        'Evidential Regression\n(Epistemic, ' +
-        lambdaSymbolStr + ' = ' + str(lamb) + ')'
+        'Evidential Regression\n(Epistemic, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
     )
     aleatoricLabel = (
-        'Evidential Regression\n(Aleatoric, ' +
-        lambdaSymbolStr + ' = ' + str(lamb) + ')'
+        'Evidential Regression\n(Aleatoric, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
     )
     axs = uct.viz_Ensemble.plot_adversarial_group_calibration(
         pred_mean,
         pred_std,
         target,
         leg_loc=4,
-        leg_labels=['5-fold Ensemble', 'MC Dropout',
-                    epistemicLabel, aleatoricLabel],
+        leg_labels=['5-fold Ensemble', 'MC Dropout', epistemicLabel, aleatoricLabel],
         groupSizeLims=groupSizeLims,
         seed=subsetSeed,
         showTitle=showTitleChoice,
@@ -103,11 +99,9 @@ def make_plots(
     axs.yaxis.set_ticks(np.arange(0.0, 0.6, 0.1))
     xTickSpacing = (groupSizeLims[1] - groupSizeLims[0]) / 5
     axs.xaxis.set_ticks(
-        np.arange(groupSizeLims[0], groupSizeLims[1] +
-                  xTickSpacing, xTickSpacing)
+        np.arange(groupSizeLims[0], groupSizeLims[1] + xTickSpacing, xTickSpacing)
     )
-    axs.set_xlim(groupSizeLims[0] - xTickSpacing / 5,
-                 groupSizeLims[1] + xTickSpacing / 5)
+    axs.set_xlim(groupSizeLims[0] - xTickSpacing / 5, groupSizeLims[1] + xTickSpacing / 5)
     axs.set_xlabel('Group Size (% of Test Set)')
     # if showTitleChoice == True:
     #    axs.set(title = "Adversarial Group Calibration\nAcross UQ Techniques")
@@ -128,10 +122,8 @@ def make_plots(
     savefig = True
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'svg', white_background=True)
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'png', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TARGETS_FILEPATH'
@@ -199,8 +191,7 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(
-        predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
     uncertaintyFilePath = os.path.join(
         uncertaintyFilePathList[ind], uncertaintyFileNameList[ind]
     )
@@ -220,13 +211,11 @@ targetFile = targetFilePath + targetFileName
 savePlotNameTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_Title_Seed' + str(
     rngVisualSeed
 )
-savePlotNameLeg = 'UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed' + \
-    str(rngVisualSeed)
+savePlotNameLeg = 'UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed' + str(rngVisualSeed)
 savePlotNameLegTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_LegTitle_Seed' + str(
     rngVisualSeed
 )
-savePlotName = 'UQ_Technique_Compare_Overlay_AdvCalibration_Seed' + \
-    str(rngVisualSeed)
+savePlotName = 'UQ_Technique_Compare_Overlay_AdvCalibration_Seed' + str(rngVisualSeed)
 
 savePlotFileTitle = os.path.join(savePlotPath, savePlotNameTitle)
 savePlotFileLeg = os.path.join(savePlotPath, savePlotNameLeg)
@@ -258,20 +247,16 @@ targetNP = targetPD[targetColName].to_numpy()
 predictionNPList = []
 uncertaintyNPList = []
 
-predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy(
-)
+predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy()
 predictionNPDropout = predictionPDList[1][predictionColNameDropout].to_numpy()
-predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy(
-)
+predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy()
 predictionNPList.append(predictionNPEnsemble)
 predictionNPList.append(predictionNPDropout)
 predictionNPList.append(predictionNPEvidential)
 predictionNPList.append(predictionNPEvidential)
 
-uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy(
-)
-uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy(
-)
+uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy()
+uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy()
 epistemicUncertaintyNPEvidential = uncertaintyPDList[2][
     epistemicUncertaintyColNameEvidential
 ].to_numpy()

@@ -67,8 +67,7 @@ def make_plots(
 
     binCount = 100
 
-    fig, axs = plt.subplots(1, 1, figsize=(3.8, 3.8),
-                            sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, 1, figsize=(3.8, 3.8), sharex=False, sharey=False)
 
     print(axs)
 
@@ -107,10 +106,8 @@ def make_plots(
 
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'svg', white_background=True)
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'png', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TARGETS_FILEPATH'
@@ -188,11 +185,9 @@ savePlotNameLeg = 'UQ_Technique_Compare_Overlay_Calibration_MC_Dropout_Leg_Seed'
     rngVisualSeed
 )
 savePlotNameLegTitle = (
-    'UQ_Technique_Compare_Overlay_Calibration_MC_Dropout_LegTitle_Seed' +
-    str(rngVisualSeed)
+    'UQ_Technique_Compare_Overlay_Calibration_MC_Dropout_LegTitle_Seed' + str(rngVisualSeed)
 )
-savePlotName = 'UQ_Technique_Compare_Overlay_Calibration_MC_Dropout_Seed' + \
-    str(rngVisualSeed)
+savePlotName = 'UQ_Technique_Compare_Overlay_Calibration_MC_Dropout_Seed' + str(rngVisualSeed)
 
 savePlotFileTitle = os.path.join(savePlotPath, savePlotNameTitle)
 savePlotFileLeg = os.path.join(savePlotPath, savePlotNameLeg)
@@ -223,12 +218,10 @@ predictionNPList = []
 uncertaintyNPList = []
 
 for ind in range(len(sampleList)):
-    predictionNPDropout = predictionPDList[ind][predictionColNameDropout].to_numpy(
-    )
+    predictionNPDropout = predictionPDList[ind][predictionColNameDropout].to_numpy()
     predictionNPList.append(predictionNPDropout)
 
-    uncertaintyNPDropout = uncertaintyPDList[ind][uncertaintyColNameDropout].to_numpy(
-    )
+    uncertaintyNPDropout = uncertaintyPDList[ind][uncertaintyColNameDropout].to_numpy()
     uncertaintyNPList.append(uncertaintyNPDropout)
 
 # Save figure specification

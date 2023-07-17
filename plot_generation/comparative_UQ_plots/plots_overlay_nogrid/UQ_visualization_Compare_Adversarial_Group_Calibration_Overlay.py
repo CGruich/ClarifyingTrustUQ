@@ -67,8 +67,7 @@ def make_plots(
 
     binCount = 100
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5),
-                            sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5), sharex=False, sharey=False)
 
     # Format x-axis to be percentage tick marks
     axs.xaxis.set_major_formatter(PercentFormatter(1.0))
@@ -77,12 +76,10 @@ def make_plots(
 
     # Make calibration plot
     epistemicLabel = (
-        'Evidential Regression\n(Epistemic, ' +
-        lambdaSymbolStr + ' = ' + str(lamb) + ')'
+        'Evidential Regression\n(Epistemic, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
     )
     aleatoricLabel = (
-        'Evidential Regression\n(Aleatoric, ' +
-        lambdaSymbolStr + ' = ' + str(lamb) + ')'
+        'Evidential Regression\n(Aleatoric, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
     )
     axs = uct.viz_Ensemble.plot_adversarial_group_calibration(
         pred_mean,
@@ -120,10 +117,8 @@ def make_plots(
     savefig = True
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'svg', white_background=True)
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'png', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TARGETS_FILEPATH'
@@ -187,8 +182,7 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(
-        predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
     uncertaintyFilePath = os.path.join(
         uncertaintyFilePathList[ind], uncertaintyFileNameList[ind]
     )
@@ -208,13 +202,11 @@ targetFile = targetFilePath + targetFileName
 savePlotNameTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_Title_Seed' + str(
     rngVisualSeed
 )
-savePlotNameLeg = 'UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed' + \
-    str(rngVisualSeed)
+savePlotNameLeg = 'UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed' + str(rngVisualSeed)
 savePlotNameLegTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_LegTitle_Seed' + str(
     rngVisualSeed
 )
-savePlotName = 'UQ_Technique_Compare_Overlay_AdvCalibration_Seed' + \
-    str(rngVisualSeed)
+savePlotName = 'UQ_Technique_Compare_Overlay_AdvCalibration_Seed' + str(rngVisualSeed)
 
 savePlotFileTitle = os.path.join(savePlotPath, savePlotNameTitle)
 savePlotFileLeg = os.path.join(savePlotPath, savePlotNameLeg)
@@ -245,19 +237,15 @@ targetNP = targetPD[targetColName].to_numpy()
 predictionNPList = []
 uncertaintyNPList = []
 
-predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy(
-)
+predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy()
 predictionNPDropout = predictionPDList[1][predictionColNameDropout].to_numpy()
-predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy(
-)
+predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy()
 predictionNPList.append(predictionNPEnsemble)
 predictionNPList.append(predictionNPDropout)
 predictionNPList.append(predictionNPEvidential)
 
-uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy(
-)
-uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy(
-)
+uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy()
+uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy()
 epistemicUncertaintyNPEvidential = uncertaintyPDList[2][
     epistemicUncertaintyColNameEvidential
 ].to_numpy()

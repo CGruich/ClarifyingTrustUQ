@@ -118,14 +118,12 @@ class Evaluator:
             # If dictionary, we expect it to have `metric`, `total`, `numel`.
             metrics[key]['total'] += stat['total']
             metrics[key]['numel'] += stat['numel']
-            metrics[key]['metric'] = metrics[key]['total'] / \
-                metrics[key]['numel']
+            metrics[key]['metric'] = metrics[key]['total'] / metrics[key]['numel']
         elif isinstance(stat, float) or isinstance(stat, int):
             # If float or int, just add to the total and increment numel by 1.
             metrics[key]['total'] += stat
             metrics[key]['numel'] += 1
-            metrics[key]['metric'] = metrics[key]['total'] / \
-                metrics[key]['numel']
+            metrics[key]['metric'] = metrics[key]['total'] / metrics[key]['numel']
         elif torch.is_tensor(stat):
             raise NotImplementedError
 
@@ -212,7 +210,7 @@ def energy_force_within_threshold(prediction, target):
     for i, n in enumerate(target['natoms']):
         if (
             error_energy[i] < e_thresh
-            and error_forces[start_idx: start_idx + n].max() < f_thresh
+            and error_forces[start_idx : start_idx + n].max() < f_thresh
         ):
             success += 1
         start_idx += n
@@ -241,8 +239,7 @@ def energy_within_threshold(prediction, target):
 
 
 def average_distance_within_threshold(prediction, target):
-    pred_pos = torch.split(
-        prediction['positions'], prediction['natoms'].tolist())
+    pred_pos = torch.split(prediction['positions'], prediction['natoms'].tolist())
     target_pos = torch.split(target['positions'], target['natoms'].tolist())
 
     mean_distance = []
@@ -315,8 +312,7 @@ def squared_error(prediction, target):
 
 def magnitude_error(prediction, target, p=2):
     assert prediction.shape[1] > 1
-    error = torch.abs(torch.norm(prediction, p=p, dim=-1) -
-                      torch.norm(target, p=p, dim=-1))
+    error = torch.abs(torch.norm(prediction, p=p, dim=-1) - torch.norm(target, p=p, dim=-1))
     return {
         'metric': torch.mean(error).item(),
         'total': torch.sum(error).item(),

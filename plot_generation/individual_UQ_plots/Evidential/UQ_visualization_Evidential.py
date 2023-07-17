@@ -238,10 +238,8 @@ def make_plots(
 
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'svg', white_background=True)
-        uct.viz_Evidential.save_figure(
-            plot_save_str, 'png', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
 
 
 targetFilePath = 'VALID_TEST_TARGETS'
@@ -276,10 +274,8 @@ aleatoricUncertaintyFileName = 'aleatoric_uncertainty_' + jobID + '.csv'
 epistemicUncertaintyFileName = 'epistemic_uncertainty_' + jobID + '.csv'
 
 # What to name plot
-aleatoricSavePlotName = 'Aleatoric_Lamb' + \
-    lambStr + '_Seed' + str(rngVisualSeed)
-epistemicSavePlotName = 'Epistemic_Lamb' + \
-    lambStr + '_Seed' + str(rngVisualSeed)
+aleatoricSavePlotName = 'Aleatoric_Lamb' + lambStr + '_Seed' + str(rngVisualSeed)
+epistemicSavePlotName = 'Epistemic_Lamb' + lambStr + '_Seed' + str(rngVisualSeed)
 
 targetFile = targetFilePath + targetFileName
 predictionFile = predictionFilePath + predictionFileName
@@ -312,10 +308,8 @@ print('\nConverting to NumPy arrays...')
 
 targetNP = targetPD[targetColName].to_numpy()
 predictionNP = predictionPD[predictionColName].to_numpy()
-aleatoricUncertaintyNP = aleatoricUncertaintyPD[aleatoricUncertaintyColName].to_numpy(
-)
-epistemicUncertaintyNP = epistemicUncertaintyPD[epistemicUncertaintyColName].to_numpy(
-)
+aleatoricUncertaintyNP = aleatoricUncertaintyPD[aleatoricUncertaintyColName].to_numpy()
+epistemicUncertaintyNP = epistemicUncertaintyPD[epistemicUncertaintyColName].to_numpy()
 
 print('\nTarget Array: ')
 print(targetNP)
@@ -335,8 +329,7 @@ aleatoricMace = uct.mean_absolute_calibration_error(
 aleatoricRmsce = uct.root_mean_squared_calibration_error(
     predictionNP, aleatoricUncertaintyNP, targetNP
 )
-aleatoricMa = uct.miscalibration_area(
-    predictionNP, aleatoricUncertaintyNP, targetNP)
+aleatoricMa = uct.miscalibration_area(predictionNP, aleatoricUncertaintyNP, targetNP)
 
 epistemicMace = uct.mean_absolute_calibration_error(
     predictionNP, epistemicUncertaintyNP, targetNP
@@ -344,8 +337,7 @@ epistemicMace = uct.mean_absolute_calibration_error(
 epistemicRmsce = uct.root_mean_squared_calibration_error(
     predictionNP, epistemicUncertaintyNP, targetNP
 )
-epistemicMa = uct.miscalibration_area(
-    predictionNP, epistemicUncertaintyNP, targetNP)
+epistemicMa = uct.miscalibration_area(predictionNP, epistemicUncertaintyNP, targetNP)
 
 # Whether the title and/or legend is going to be shown.
 showTitleChoice = True
@@ -378,7 +370,5 @@ make_plots(
     plot_save_str=epistemicSavePlot,
 )
 
-aleatoricMetrics = uct.metrics.get_all_metrics(
-    predictionNP, aleatoricUncertaintyNP, targetNP)
-epistemicMetrics = uct.metrics.get_all_metrics(
-    predictionNP, epistemicUncertaintyNP, targetNP)
+aleatoricMetrics = uct.metrics.get_all_metrics(predictionNP, aleatoricUncertaintyNP, targetNP)
+epistemicMetrics = uct.metrics.get_all_metrics(predictionNP, epistemicUncertaintyNP, targetNP)

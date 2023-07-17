@@ -121,12 +121,10 @@ def plot_parity(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Identity line
-    h1 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes,
-                 c='#ff7f0e', linewidth=2)
+    h1 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#ff7f0e', linewidth=2)
     # Parity plot points
     h2 = ax.plot(y_true, y_pred, '.', mec='#1f77b4', mfc='#1f77b4')
 
@@ -211,8 +209,7 @@ def plot_xy(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true, x] = filter_subset(
-            [y_pred, y_std, y_true, x], n_subset)
+        [y_pred, y_std, y_true, x] = filter_subset([y_pred, y_std, y_true, x], n_subset)
 
     intervals = num_stds_confidence_bound * y_std
 
@@ -270,8 +267,7 @@ def plot_intervals(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset)
 
     # Compute intervals
     intervals = num_stds_confidence_bound * y_std
@@ -341,8 +337,7 @@ def plot_intervals_ordered(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     order = np.argsort(y_true.flatten())
     y_pred, y_std, y_true = y_pred[order], y_std[order], y_true[order]
@@ -415,8 +410,7 @@ def plot_calibration(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     if (exp_props is None) or (obs_props is None):
         # Compute exp_proportions and obs_proportions
@@ -425,8 +419,7 @@ def plot_calibration(
                 y_pred, y_std, y_true
             )
         else:
-            (exp_proportions, obs_proportions) = get_proportion_lists(
-                y_pred, y_std, y_true)
+            (exp_proportions, obs_proportions) = get_proportion_lists(y_pred, y_std, y_true)
     else:
         # If expected and observed proportions are given
         exp_proportions = np.array(exp_props).flatten()
@@ -441,8 +434,7 @@ def plot_calibration(
     # Plot
     ax.plot([0, 1], [0, 1], '--', label='Ideal', c='#ff7f0e')
     ax.plot(exp_proportions, obs_proportions, label=curve_label, c='#1f77b4')
-    ax.fill_between(exp_proportions, exp_proportions,
-                    obs_proportions, alpha=0.2)
+    ax.fill_between(exp_proportions, exp_proportions, obs_proportions, alpha=0.2)
 
     # Format plot
     ax.set_xlabel('Predicted Proportion in Interval')
@@ -520,8 +512,7 @@ def plot_adversarial_group_calibration(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Compute group_size, score_mean, score_stderr
     if (group_size is None) or (score_mean is None):
@@ -538,8 +529,7 @@ def plot_adversarial_group_calibration(
         score_mean = np.array(score_mean).flatten()
         score_stderr = np.array(score_stderr).flatten()
         if (group_size.shape != score_mean.shape) or (group_size.shape != score_stderr.shape):
-            raise RuntimeError(
-                'Input arrays for adversarial group calibration shape mismatch')
+            raise RuntimeError('Input arrays for adversarial group calibration shape mismatch')
 
     # Set label
     if curve_label is None:
@@ -587,14 +577,12 @@ def plot_sharpness(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # If bin count is specified, change matlotlib rcParams["hist.bins"] value in histogram,
     if bins is not None:
         # Plot sharpness curve
-        ax.hist(y_std, bins=bins, edgecolor='#1f77b4',
-                color='#a5c8e1', density=True)
+        ax.hist(y_std, bins=bins, edgecolor='#1f77b4', color='#a5c8e1', density=True)
     else:
         # Plot sharpness curve
         ax.hist(y_std, edgecolor='#1f77b4', color='#a5c8e1', density=True)
@@ -658,8 +646,7 @@ def plot_residuals_vs_stds(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Compute residuals
     residuals = y_true - y_pred
@@ -727,8 +714,7 @@ def set_style(style_str: str = 'default') -> NoReturn:
         style_str: string for style file.
     """
     if style_str == 'default':
-        plt.style.use(
-            (pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
+        plt.style.use((pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
 
 
 def save_figure(

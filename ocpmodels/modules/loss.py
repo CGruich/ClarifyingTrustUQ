@@ -129,8 +129,7 @@ class EvidentialLoss(nn.Module):
         reduction: str = 'sum',
     ) -> torch.Tensor:
 
-        nll_error = self.EvidentialRegression(
-            pred, target, self.lamb, self.reduction)
+        nll_error = self.EvidentialRegression(pred, target, self.lamb, self.reduction)
         return nll_error
 
 
@@ -173,8 +172,7 @@ class DDPLoss(nn.Module):
                     num_samples, device=pred[firstPredKey].device
                 )
             else:
-                num_samples = distutils.all_reduce(
-                    num_samples, device=pred.device)
+                num_samples = distutils.all_reduce(num_samples, device=pred.device)
             # Multiply by world size since gradients are averaged
             # across DDP replicas
             return loss * distutils.get_world_size() / num_samples

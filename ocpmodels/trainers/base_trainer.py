@@ -89,8 +89,7 @@ class BaseTrainer(ABC):
             run_dir = os.getcwd()
 
         if timestamp_id is None:
-            timestamp = torch.tensor(
-                datetime.datetime.now().timestamp()).to(self.device)
+            timestamp = torch.tensor(datetime.datetime.now().timestamp()).to(self.device)
             # create directories from master rank only
             distutils.broadcast(timestamp, 0)
             timestamp = datetime.datetime.fromtimestamp(timestamp.int()).strftime(
@@ -180,8 +179,7 @@ class BaseTrainer(ABC):
 
             # sets the hpo checkpoint frequency
             # default is no checkpointing
-            self.hpo_checkpoint_every = self.config['optim'].get(
-                'checkpoint_every', -1)
+            self.hpo_checkpoint_every = self.config['optim'].get('checkpoint_every', -1)
 
         if distutils.is_master():
             print(yaml.dump(self.config, default_flow_style=False))
@@ -204,8 +202,7 @@ class BaseTrainer(ABC):
     def export(self):
         # File directories for logs and results are already automatically made by the base_trainer.py class
         # Take advantage of this by saving model state to results_dir folder.
-        exportModelFileName = self.config['model'] + \
-            '_' + self.config['cmd']['timestamp']
+        exportModelFileName = self.config['model'] + '_' + self.config['cmd']['timestamp']
         exportModelFilePath = os.path.join(
             self.config['cmd']['results_dir'], exportModelFileName
         )
@@ -277,8 +274,7 @@ class BaseTrainer(ABC):
 
     def load_datasets(self):
         self.parallel_collater = ParallelCollater(
-            0 if self.cpu else 1, self.config['model_attributes'].get(
-                'otf_graph', False),
+            0 if self.cpu else 1, self.config['model_attributes'].get('otf_graph', False),
         )
 
         self.train_loader = self.val_loader = self.test_loader = None
@@ -290,8 +286,7 @@ class BaseTrainer(ABC):
             self.train_sampler = self.get_sampler(
                 self.train_dataset, self.config['optim']['batch_size'], shuffle=True,
             )
-            self.train_loader = self.get_dataloader(
-                self.train_dataset, self.train_sampler,)
+            self.train_loader = self.get_dataloader(self.train_dataset, self.train_sampler,)
 
             if self.config.get('val_dataset', None):
                 self.val_dataset = registry.get_dataset_class(self.config['task']['dataset'])(
@@ -304,8 +299,7 @@ class BaseTrainer(ABC):
                     ),
                     shuffle=False,
                 )
-                self.val_loader = self.get_dataloader(
-                    self.val_dataset, self.val_sampler,)
+                self.val_loader = self.get_dataloader(self.val_dataset, self.val_sampler,)
 
             if self.config.get('test_dataset', None):
                 self.test_dataset = registry.get_dataset_class(self.config['task']['dataset'])(
@@ -318,8 +312,7 @@ class BaseTrainer(ABC):
                     ),
                     shuffle=False,
                 )
-                self.test_loader = self.get_dataloader(
-                    self.test_dataset, self.test_sampler,)
+                self.test_loader = self.get_dataloader(self.test_dataset, self.test_sampler,)
 
         # Normalizer for the dataset.
         # Compute mean, std of training set labels.
@@ -349,8 +342,7 @@ class BaseTrainer(ABC):
             logging.info(f"Loading model: {self.config['model']}")
 
         # Check to see if evidential regression is enabled or not.
-        self.use_evidence = self.config['model_attributes'].get(
-            'use_evidence', False)
+        self.use_evidence = self.config['model_attributes'].get('use_evidence', False)
         self.lamb = self.config['model_attributes'].get('lamb', 0.0)
 
         # If using deep evidential regression, assert that the regularization hyperparameter is properly specified.
@@ -359,8 +351,7 @@ class BaseTrainer(ABC):
 
         # TODO: depreicated, remove.
         bond_feat_dim = None
-        bond_feat_dim = self.config['model_attributes'].get(
-            'num_gaussians', 50)
+        bond_feat_dim = self.config['model_attributes'].get('num_gaussians', 50)
 
         loader = self.train_loader or self.val_loader or self.test_loader
         self.model = registry.get_model_class(self.config['model'])(
@@ -385,13 +376,11 @@ class BaseTrainer(ABC):
             self.model, output_device=self.device, num_gpus=1 if not self.cpu else 0,
         )
         if distutils.initialized() and not self.config['noddp']:
-            self.model = DistributedDataParallel(
-                self.model, device_ids=[self.device])
+            self.model = DistributedDataParallel(self.model, device_ids=[self.device])
 
     def load_checkpoint(self, checkpoint_path):
         if not os.path.isfile(checkpoint_path):
-            raise FileNotFoundError(
-                errno.ENOENT, 'Checkpoint file not found', checkpoint_path)
+            raise FileNotFoundError(errno.ENOENT, 'Checkpoint file not found', checkpoint_path)
 
         logging.info(f'Loading checkpoint from: {checkpoint_path}')
         map_location = torch.device('cpu') if self.cpu else self.device
@@ -411,8 +400,7 @@ class BaseTrainer(ABC):
             new_dict = {k[7:]: v for k, v in checkpoint['state_dict'].items()}
             self.model.load_state_dict(new_dict)
         elif distutils.initialized() and first_key.split('.')[1] != 'module':
-            new_dict = {f'module.{k}': v for k,
-                        v in checkpoint['state_dict'].items()}
+            new_dict = {f'module.{k}': v for k, v in checkpoint['state_dict'].items()}
             self.model.load_state_dict(new_dict)
         else:
             self.model.load_state_dict(checkpoint['state_dict'])
@@ -428,8 +416,7 @@ class BaseTrainer(ABC):
 
         for key in checkpoint['normalizers']:
             if key in self.normalizers:
-                self.normalizers[key].load_state_dict(
-                    checkpoint['normalizers'][key])
+                self.normalizers[key].load_state_dict(checkpoint['normalizers'][key])
             if self.scaler and checkpoint['amp']:
                 self.scaler.load_state_dict(checkpoint['amp'])
 
@@ -450,8 +437,7 @@ class BaseTrainer(ABC):
             elif loss_name == 'energy_nll':
                 self.loss_fn[loss] = EvidentialLoss(lamb=self.lamb)
             else:
-                raise NotImplementedError(
-                    f'Unknown loss function name: {loss_name}')
+                raise NotImplementedError(f'Unknown loss function name: {loss_name}')
             self.loss_fn[loss] = DDPLoss(self.loss_fn[loss])
 
     def load_optimizer(self):
@@ -497,8 +483,7 @@ class BaseTrainer(ABC):
         self.clip_grad_norm = self.config['optim'].get('clip_grad_norm')
         self.ema_decay = self.config['optim'].get('ema_decay')
         if self.ema_decay:
-            self.ema = ExponentialMovingAverage(
-                self.model.parameters(), self.ema_decay,)
+            self.ema = ExponentialMovingAverage(self.model.parameters(), self.ema_decay,)
         else:
             self.ema = None
 
@@ -570,8 +555,7 @@ class BaseTrainer(ABC):
         # report metrics to tune
         tune_reporter(  # noqa: F821
             iters=progress,
-            train_metrics={k: train_metrics[k]['metric']
-                for k in self.metrics},
+            train_metrics={k: train_metrics[k]['metric'] for k in self.metrics},
             val_metrics={k: val_metrics[k]['metric'] for k in val_metrics},
             test_metrics=test_metrics,
         )
@@ -676,8 +660,7 @@ class BaseTrainer(ABC):
                 self.model.parameters(), max_norm=self.clip_grad_norm,
             )
             if self.logger is not None:
-                self.logger.log({'grad_norm': grad_norm},
-                                step=self.step, split='train')
+                self.logger.log({'grad_norm': grad_norm}, step=self.step, split='train')
         if self.scaler:
             self.scaler.step(self.optimizer)
             self.scaler.update()
@@ -723,11 +706,9 @@ class BaseTrainer(ABC):
             gather_results['ids'] = np.array(gather_results['ids'])[idx]
             for k in keys:
                 if k == 'forces':
-                    gather_results[k] = np.concatenate(
-                        np.array(gather_results[k])[idx])
+                    gather_results[k] = np.concatenate(np.array(gather_results[k])[idx])
                 elif k == 'chunk_idx':
-                    gather_results[k] = np.cumsum(
-                        np.array(gather_results[k])[idx])[:-1]
+                    gather_results[k] = np.cumsum(np.array(gather_results[k])[idx])[:-1]
                 else:
                     gather_results[k] = np.array(gather_results[k])[idx]
 

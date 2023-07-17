@@ -18,11 +18,9 @@ gigPerLMDB = gigSize * numGigs
 
 valID_H_Adsorbate_Path = sysMetaDataPath
 valID_H_Adsorbate_File = 'ValID_H_Adsorbate_data.lmdb'
-valID_H_Adsorbate = os.path.join(
-    valID_H_Adsorbate_Path, valID_H_Adsorbate_File)
+valID_H_Adsorbate = os.path.join(valID_H_Adsorbate_Path, valID_H_Adsorbate_File)
 valID_H_Adsorbate_sid_File = 'ValID_H_Adsorbate_sid.csv'
-valID_H_Adsorbate_sid = os.path.join(
-    valID_H_Adsorbate_Path, valID_H_Adsorbate_sid_File)
+valID_H_Adsorbate_sid = os.path.join(valID_H_Adsorbate_Path, valID_H_Adsorbate_sid_File)
 valID_H_Adsorbate_Systems_File = 'ValID_H_Adsorbate_systems.csv'
 valID_H_Adsorbate_Systems = os.path.join(
     valID_H_Adsorbate_Path, valID_H_Adsorbate_Systems_File
@@ -123,8 +121,7 @@ with valID_env.begin() as txn_old:
             sidVal = relevant_sids[sidInd]
             # Get the ValID row_ind associated with the sid via the dictionary mapping
             try:
-                valID_ind = LMDB_ind_to_valID_sid_mapping[sidVal].encode(
-                    'ascii')
+                valID_ind = LMDB_ind_to_valID_sid_mapping[sidVal].encode('ascii')
             except:
                 continue
 
@@ -160,5 +157,4 @@ with open(valID_H_Adsorbate_Systems, 'w') as subselectDescLog:
     systemWriter = csv.writer(subselectDescLog)
     for sid in relevant_sids_valID:
         sid = 'random' + str(sid)
-        systemWriter.writerow(
-            [sid.replace('random', ""), str(sysMetaDataContents[sid])])
+        systemWriter.writerow([sid.replace('random', ""), str(sysMetaDataContents[sid])])
