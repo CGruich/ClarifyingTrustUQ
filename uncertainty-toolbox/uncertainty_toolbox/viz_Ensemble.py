@@ -28,20 +28,20 @@ from sklearn.isotonic import IsotonicRegression
 # Save the unicode string for the lambda symbol so we can put it in the plots later.
 # Make this a global variable such that it is accessible from all functions.
 global lambdaSymbolStr
-lambdaSymbolStr = "\u03bb"
+lambdaSymbolStr = '\u03bb'
 
 
 def plot_accuracy_lineplot(
-        error_array: np.ndarray,
-        leg_loc: Union[int, str] = 2,
-        leg_labels: Union[list, None] = None,
-        colorList: list = ["#1f77b4", "#CD0000"],
-        markerList: list = ['o', 's', 'P', '^'],
-        lineList: list = ['dashed', 'dotted', 'dashdot', 'solid'],
-        xLabels: Union[list, None] = None,
-        showTitle: bool = True,
-        showLegend: bool = True,
-        ax: Union[matplotlib.axes.Axes, None] = None,
+    error_array: np.ndarray,
+    leg_loc: Union[int, str] = 2,
+    leg_labels: Union[list, None] = None,
+    colorList: list = ['#1f77b4', '#CD0000'],
+    markerList: list = ['o', 's', 'P', '^'],
+    lineList: list = ['dashed', 'dotted', 'dashdot', 'solid'],
+    xLabels: Union[list, None] = None,
+    showTitle: bool = True,
+    showLegend: bool = True,
+    ax: Union[matplotlib.axes.Axes, None] = None,
 ) -> matplotlib.axes.Axes:
     """ Plot a lineplot of ML model overall accuracy based on desired error metric.
 
@@ -83,11 +83,32 @@ def plot_accuracy_lineplot(
         assert len(markerList) >= numLineTrends
 
         if leg_labels is not None:
-            ax.plot(xPoints, yPoints, color="black", marker=markerList[trendInd], markerfacecolor=colorList[trendInd], markeredgecolor='black',
-                    markeredgewidth='2', linestyle=lineList[trendInd], linewidth=2, markersize=8, label=leg_labels[trendInd])
+            ax.plot(
+                xPoints,
+                yPoints,
+                color='black',
+                marker=markerList[trendInd],
+                markerfacecolor=colorList[trendInd],
+                markeredgecolor='black',
+                markeredgewidth='2',
+                linestyle=lineList[trendInd],
+                linewidth=2,
+                markersize=8,
+                label=leg_labels[trendInd],
+            )
         elif leg_labels is None:
-            ax.plot(xPoints, yPoints, color="black", marker=markerList[trendInd], markerfacecolor=colorList[trendInd], markeredgecolor='black',
-                    markeredgewidth='2', linestyle=lineList[trendInd], linewidth=2, markersize=8)
+            ax.plot(
+                xPoints,
+                yPoints,
+                color='black',
+                marker=markerList[trendInd],
+                markerfacecolor=colorList[trendInd],
+                markeredgecolor='black',
+                markeredgewidth='2',
+                linestyle=lineList[trendInd],
+                linewidth=2,
+                markersize=8,
+            )
 
     # Construct a legend if not None
     if (leg_labels is not None) and (showLegend == True):
@@ -97,20 +118,20 @@ def plot_accuracy_lineplot(
     if xLabels != None:
         ax.set_xticks(xPoints, xLabels)
 
-    ax.set_xlabel("Training Dropout Rate")
-    ax.set_ylabel("Mean Absolute Error (eV)")
+    ax.set_xlabel('Training Dropout Rate')
+    ax.set_ylabel('Mean Absolute Error (eV)')
     if showTitle == True:
-        ax.set_title("Test Accuracy versus Dropout Rate (MC Dropout)")
+        ax.set_title('Test Accuracy versus Dropout Rate (MC Dropout)')
     return ax
 
 
 def plot_accuracy_barchart(
-        error_array: np.ndarray,
-        leg_loc: Union[int, str] = 2,
-        leg_labels: list = None,
-        colorList: list = ["#1f77b4", "#CD0000"],
-        xLabels: list = None,
-        ax: Union[matplotlib.axes.Axes, None] = None,
+    error_array: np.ndarray,
+    leg_loc: Union[int, str] = 2,
+    leg_labels: list = None,
+    colorList: list = ['#1f77b4', '#CD0000'],
+    xLabels: list = None,
+    ax: Union[matplotlib.axes.Axes, None] = None,
 ) -> matplotlib.axes.Axes:
     """Plot a bar chart of ML model overall accuracy based on desired error metric.
 
@@ -145,8 +166,9 @@ def plot_accuracy_barchart(
     # Construct the bar chart
     for xInd in range(xIndices.shape[0]):
         for barInd in range(len(xIndices[xInd])):
-            ax.bar(xIndices[xInd], xIndicies[xInd][barInd],
-                   color=colorList[barInd], width=xWidth)
+            ax.bar(
+                xIndices[xInd], xIndicies[xInd][barInd], color=colorList[barInd], width=xWidth
+            )
 
     # Construct a legend if not None
     if (leg_labels is not None) and (showLegend == True):
@@ -154,9 +176,9 @@ def plot_accuracy_barchart(
         ax.legend(labels=leg_labels)
 
     ax.set_xticks(xIndices, xLabels)
-    ax.set_ylabel("Error")
+    ax.set_ylabel('Error')
     if showTitle == True:
-        ax.set_title("Accuracy Bar Chart")
+        ax.set_title('Accuracy Bar Chart')
     return ax
 
 
@@ -203,21 +225,18 @@ def plot_parity(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], "--", transform=ax.transAxes,
-                 c="#CD0000", linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
     # Parity plot points
-    h1 = ax.plot(y_true, y_pred, ".", mec="black",
-                 mfc="#1f77b4", markeredgewidth=1.0)
+    h1 = ax.plot(y_true, y_pred, '.', mec='black', mfc='#1f77b4', markeredgewidth=1.0)
 
     if showLegend == True:
         ax.legend(
             [h2[0], h1[0]],
-            ["Perfect Fit", "Prediction"],
-            title=str(n_subset) + " Clusters",
+            ['Perfect Fit', 'Prediction'],
+            title=str(n_subset) + ' Clusters',
             loc=leg_loc,
         )
 
@@ -244,12 +263,12 @@ def plot_parity(
     # Format plot
     ax.set_xlim(lims_ext_xlims)
     ax.set_ylim(lims_ext_ylims)
-    ax.set_xlabel("Adsorption Energy (eV)")
-    ax.set_ylabel("Predicted\nAdsorption Energy (eV)")
+    ax.set_xlabel('Adsorption Energy (eV)')
+    ax.set_ylabel('Predicted\nAdsorption Energy (eV)')
 
     if showTitle == True:
-        ax.set_title("Parity Plot (MC Dropout)")
-    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+        ax.set_title('Parity Plot (MC Dropout)')
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     return ax
 
@@ -313,8 +332,7 @@ def plot_parity_hexagonal(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Determine lims
 
@@ -337,63 +355,85 @@ def plot_parity_hexagonal(
         lims_ext_xlims = xlims
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], "--", transform=ax.transAxes,
-                 c="#CD0000", linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
     # Parity plot points, expressed as hexagonal binning
     # h1 = ax.plot(y_true, y_pred, ".", mec="#1f77b4", mfc="#1f77b4")
 
     if colorRange != None:
-        h1 = ax.hexbin(y_true, y_pred, gridsize=gridSize, bins=bins, extent=(lims_ext_xlims[0], lims_ext_xlims[1], lims_ext_ylims[0], lims_ext_ylims[1]), cmap="Blues",
-                       vmin=colorRange[0], vmax=colorRange[1], linewidths=0.1)
+        h1 = ax.hexbin(
+            y_true,
+            y_pred,
+            gridsize=gridSize,
+            bins=bins,
+            extent=(
+                lims_ext_xlims[0],
+                lims_ext_xlims[1],
+                lims_ext_ylims[0],
+                lims_ext_ylims[1],
+            ),
+            cmap='Blues',
+            vmin=colorRange[0],
+            vmax=colorRange[1],
+            linewidths=0.1,
+        )
     else:
-        h1 = ax.hexbin(y_true, y_pred, gridsize=gridSize, bins=bins, extent=(
-            lims_ext_xlims[0], lims_ext_xlims[1], lims_ext_ylims[0], lims_ext_ylims[1]), cmap="Blues", linewidths=0.1)
+        h1 = ax.hexbin(
+            y_true,
+            y_pred,
+            gridsize=gridSize,
+            bins=bins,
+            extent=(
+                lims_ext_xlims[0],
+                lims_ext_xlims[1],
+                lims_ext_ylims[0],
+                lims_ext_ylims[1],
+            ),
+            cmap='Blues',
+            linewidths=0.1,
+        )
 
     counts = h1.get_array()
 
     if showColorBar == True:
         cb = subFig.colorbar(h1, ax=ax, pad=0.04)
         if bins == None:
-            cb.set_label("Samples")
-        elif bins == "log":
-            cb.set_label("log10(Samples)")
+            cb.set_label('Samples')
+        elif bins == 'log':
+            cb.set_label('log10(Samples)')
 
     if n_subset is not None:
-        titleName = str(n_subset) + " Clusters"
+        titleName = str(n_subset) + ' Clusters'
     else:
         titleName = None
     if showLegend == True:
         ax.legend(
-            [h2[0]],
-            ["Perfect Fit"],
-            title=titleName,
-            loc=leg_loc,
+            [h2[0]], ['Perfect Fit'], title=titleName, loc=leg_loc,
         )
 
     # Format plot
     ax.set_xlim(lims_ext_xlims)
     ax.set_ylim(lims_ext_ylims)
-    ax.set_xlabel("Adsorption Energy (eV)")
-    ax.set_ylabel("Predicted\nAdsorption Energy (eV)")
-    if (showTitle == True):
-        ax.set_title("Parity Plot (MC Dropout)")
-    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+    ax.set_xlabel('Adsorption Energy (eV)')
+    ax.set_ylabel('Predicted\nAdsorption Energy (eV)')
+    if showTitle == True:
+        ax.set_title('Parity Plot (MC Dropout)')
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     # Show any quantitative accuracy metrics
     if statLabels is not None:
         # Show accuracy metrics (e.g., MAE) in a textbox.
         accuracyStr = ""
         for ind in range(len(statLabels)):
-            subStr = statLabels[ind][0] + " = " + statLabels[ind][1] + "\n"
+            subStr = statLabels[ind][0] + ' = ' + statLabels[ind][1] + '\n'
             accuracyStr = accuracyStr + subStr
         ax.text(
             x=0.02,
             y=0.98,
             s=accuracyStr,
-            verticalalignment="top",
-            horizontalalignment="left",
+            verticalalignment='top',
+            horizontalalignment='left',
             fontsize=8,
-            transform=ax.transAxes
+            transform=ax.transAxes,
         )
 
     # If we want to get the plot limits,
@@ -460,24 +500,17 @@ def plot_xy(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true, x] = filter_subset(
-            [y_pred, y_std, y_true, x], n_subset)
+        [y_pred, y_std, y_true, x] = filter_subset([y_pred, y_std, y_true, x], n_subset)
 
     intervals = num_stds_confidence_bound * y_std
 
-    h1 = ax.plot(x, y_true, ".", mec="#1f77b4", mfc="None")
-    h2 = ax.plot(x, y_pred, "--", c="#CD0000", linewidth=2)
+    h1 = ax.plot(x, y_true, '.', mec='#1f77b4', mfc='None')
+    h2 = ax.plot(x, y_pred, '--', c='#CD0000', linewidth=2)
     h3 = ax.fill_between(
-        x,
-        y_pred - intervals,
-        y_pred + intervals,
-        color="lightsteelblue",
-        alpha=0.4,
+        x, y_pred - intervals, y_pred + intervals, color='lightsteelblue', alpha=0.4,
     )
     ax.legend(
-        [h1[0], h2[0], h3],
-        ["Observations", "Predictions", "$95\%$ Interval"],
-        loc=leg_loc,
+        [h1[0], h2[0], h3], ['Observations', 'Predictions', '$95\%$ Interval'], loc=leg_loc,
     )
 
     # Format plot
@@ -487,10 +520,10 @@ def plot_xy(
     if xlims is not None:
         ax.set_xlim(xlims)
 
-    ax.set_xlabel("$x$")
-    ax.set_ylabel("$y$")
-    ax.set_title("Confidence Band")
-    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+    ax.set_xlabel('$x$')
+    ax.set_ylabel('$y$')
+    ax.set_title('Confidence Band')
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     return ax
 
@@ -526,24 +559,16 @@ def plot_intervals(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset)
 
     # Compute intervals
     intervals = num_stds_confidence_bound * y_std
 
     # Plot
     ax.errorbar(
-        y_true,
-        y_pred,
-        intervals,
-        fmt="o",
-        ls="none",
-        linewidth=1.5,
-        c="#1f77b4",
-        alpha=0.5,
+        y_true, y_pred, intervals, fmt='o', ls='none', linewidth=1.5, c='#1f77b4', alpha=0.5,
     )
-    h1 = ax.plot(y_true, y_pred, "o", c="#1f77b4")
+    h1 = ax.plot(y_true, y_pred, 'o', c='#1f77b4')
 
     # Determine lims
     if ylims is None:
@@ -556,20 +581,20 @@ def plot_intervals(
         lims_ext = ylims
 
     # plot 45-degree line
-    h2 = ax.plot(lims_ext, lims_ext, "--", linewidth=1.5, c="#CD0000")
+    h2 = ax.plot(lims_ext, lims_ext, '--', linewidth=1.5, c='#CD0000')
 
     # Legend
-    ax.legend([h1[0], h2[0]], ["Predictions", "$f(x) = x$"], loc=4)
+    ax.legend([h1[0], h2[0]], ['Predictions', '$f(x) = x$'], loc=4)
 
     # Format plot
     ax.set_xlim(lims_ext)
     ax.set_ylim(lims_ext)
-    ax.set_xlabel("Observed Values")
-    ax.set_ylabel("Predicted Values and Intervals")
-    ax.set_title("Prediction Intervals")
+    ax.set_xlabel('Observed Values')
+    ax.set_ylabel('Predicted Values and Intervals')
+    ax.set_title('Prediction Intervals')
 
     if aspect_ratio is not None:
-        ax.set_aspect(aspect_ratio / ax.get_data_ratio(), adjustable="box")
+        ax.set_aspect(aspect_ratio / ax.get_data_ratio(), adjustable='box')
 
     return ax
 
@@ -608,8 +633,7 @@ def plot_intervals_ordered(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     order = np.argsort(y_true.flatten())
     y_pred, y_std, y_true = y_pred[order], y_std[order], y_true[order]
@@ -618,23 +642,19 @@ def plot_intervals_ordered(
 
     # Plot
     ax.errorbar(
-        xs,
-        y_pred,
-        intervals,
-        fmt=".",
-        ls="none",
-        linewidth=1.5,
-        c="#1f77b4",
-        alpha=0.5,
+        xs, y_pred, intervals, fmt='.', ls='none', linewidth=1.5, c='#1f77b4', alpha=0.5,
     )
-    h1 = ax.plot(xs, y_pred, ".", mec="black",
-                 mfc="#1f77b4", markeredgewidth=1.0)
-    h2 = ax.plot(xs, y_true, "--", linewidth=2.0, c="#CD0000")
+    h1 = ax.plot(xs, y_pred, '.', mec='black', mfc='#1f77b4', markeredgewidth=1.0)
+    h2 = ax.plot(xs, y_true, '--', linewidth=2.0, c='#CD0000')
 
     # Legend
     if showLegend == True:
-        ax.legend([h2[0], h1[0]], ["Perfect Fit", "Prediction"],
-                  title=str(n_subset) + " Clusters", loc=4)
+        ax.legend(
+            [h2[0], h1[0]],
+            ['Perfect Fit', 'Prediction'],
+            title=str(n_subset) + ' Clusters',
+            loc=4,
+        )
 
     # Determine lims
     if ylims is None:
@@ -648,11 +668,11 @@ def plot_intervals_ordered(
 
     # Format plot
     ax.set_ylim(lims_ext)
-    ax.set_xlabel("Cluster Index\n(Ordered by Ground Truth Cluster)")
-    ax.set_ylabel("Predicted\nAdsorption Energy\n(eV, +/- 2\u03C3)")
+    ax.set_xlabel('Cluster Index\n(Ordered by Ground Truth Cluster)')
+    ax.set_ylabel('Predicted\nAdsorption Energy\n(eV, +/- 2\u03C3)')
     if showTitle == True:
-        ax.set_title("Ordered Prediction Intervals (MC Dropout)")
-    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+        ax.set_title('Ordered Prediction Intervals (MC Dropout)')
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     return ax
 
@@ -663,12 +683,17 @@ def plot_calibration(
     y_true: np.ndarray,
     leg_loc: Union[int, str] = 4,
     leg_labels: Union[list, None] = None,
-    colorList: list = ["#1f77b4", "darkorange",
-                       "darkgreen", "gold", "chocolate", "darkcyan"],
+    colorList: list = ['#1f77b4', 'darkorange', 'darkgreen', 'gold', 'chocolate', 'darkcyan'],
     markerList: list = ['o', 's', 'P', '^', 'D', 'p'],
-    lineList: list = ['dashed', 'dotted', 'dashdot', 'solid',
-                      (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5, 1, 5))],
-    legendTitle: str = "Miscalibration Area",
+    lineList: list = [
+        'dashed',
+        'dotted',
+        'dashdot',
+        'solid',
+        (0, (3, 1, 1, 1, 1, 1)),
+        (0, (3, 5, 1, 5, 1, 5)),
+    ],
+    legendTitle: str = 'Miscalibration Area',
     n_subset: Union[int, None] = None,
     curve_label: Union[str, None] = None,
     show: bool = False,
@@ -680,7 +705,7 @@ def plot_calibration(
     showLegend: bool = True,
     showAlpha: bool = True,
     alphaColorMap: bool = False,
-    legendAlign: str = "left",
+    legendAlign: str = 'left',
     recalModel: Union[list, IsotonicRegression] = None,
     ax: Union[matplotlib.axes.Axes, None] = None,
 ) -> matplotlib.axes.Axes:
@@ -720,7 +745,8 @@ def plot_calibration(
             filteredDatasets = []
             for trendInd in range(len(y_std)):
                 filteredDataset = filter_subset(
-                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed)
+                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed
+                )
                 filteredDatasets.append(filteredDataset)
         # If proportion data is not specified manually to draw the calibration curve(s), then calculate the proportion data
         if (exp_props is None) or (obs_props is None):
@@ -730,13 +756,21 @@ def plot_calibration(
                     (
                         exp_proportions_iter,
                         obs_proportions_iter,
-                    ) = get_proportion_lists_vectorized(y_pred[trendInd], y_std[trendInd], y_true, recal_model=recalModel[trendInd])
+                    ) = get_proportion_lists_vectorized(
+                        y_pred[trendInd],
+                        y_std[trendInd],
+                        y_true,
+                        recal_model=recalModel[trendInd],
+                    )
 
                     exp_props_list.append(exp_proportions_iter)
                     obs_props_list.append(obs_proportions_iter)
                 else:
                     (exp_proportions_iter, obs_proportions_iter) = get_proportion_lists(
-                        y_pred[trendInd], y_std[trendInd], y_true, recal_model=recalModel[trendInd]
+                        y_pred[trendInd],
+                        y_std[trendInd],
+                        y_true,
+                        recal_model=recalModel[trendInd],
                     )
 
                     exp_props_list.append(exp_proportions_iter)
@@ -748,8 +782,7 @@ def plot_calibration(
                 exp_proportions_iter = np.array(exp_props).flatten()
                 obs_proportions_iter = np.array(obs_props).flatten()
                 if exp_proportions_iter.shape != obs_proportions_iter.shape:
-                    raise RuntimeError(
-                        "exp_props and obs_props shape mismatch")
+                    raise RuntimeError('exp_props and obs_props shape mismatch')
 
                 exp_props_list.append(exp_proportions_iter)
                 obs_props_list.append(obs_proportions_iter)
@@ -758,17 +791,15 @@ def plot_calibration(
     else:
         # Optionally select a subset
         if n_subset is not None:
-            [y_pred, y_std, y_true] = filter_subset(
-                [y_pred, y_std, y_true], n_subset, seed)
+            [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
         # If proportion data is not specified manually to draw the calibration curve(s), then calculate the proportion data
         if (exp_props is None) or (obs_props is None):
             # Compute exp_proportions and obs_proportions
             if vectorized:
-                (
-                    exp_proportions,
-                    obs_proportions,
-                ) = get_proportion_lists_vectorized(y_pred, y_std, y_true, recal_model=recalModel)
+                (exp_proportions, obs_proportions,) = get_proportion_lists_vectorized(
+                    y_pred, y_std, y_true, recal_model=recalModel
+                )
 
                 exp_props_list.append(exp_proportions)
                 obs_props_list.append(obs_proportions)
@@ -785,46 +816,51 @@ def plot_calibration(
             exp_proportions = np.array(exp_props).flatten()
             obs_proportions = np.array(obs_props).flatten()
             if exp_proportions.shape != obs_proportions.shape:
-                raise RuntimeError("exp_props and obs_props shape mismatch")
+                raise RuntimeError('exp_props and obs_props shape mismatch')
 
             exp_props_list.append(exp_proportions)
             obs_props_list.append(obs_proportions)
 
     # Set label
     if curve_label is None:
-        curve_label = "Predictor"
+        curve_label = 'Predictor'
     # Plot the perfect calibration line
-    ax.plot([0, 1], [0, 1], "--", label="Ideal", c="#CD0000")
+    ax.plot([0, 1], [0, 1], '--', label='Ideal', c='#CD0000')
 
     # If we want to plot multiple calibration curves,
     if type(y_std) is list:
         for trendInd in range(len(y_std)):
             if alphaColorMap == False:
-                h1, = ax.plot(
-                    exp_props_list[trendInd], obs_props_list[trendInd], label=curve_label, c=colorList[trendInd])
+                (h1,) = ax.plot(
+                    exp_props_list[trendInd],
+                    obs_props_list[trendInd],
+                    label=curve_label,
+                    c=colorList[trendInd],
+                )
             else:
-                h1, = ax.plot(
-                    exp_props_list[trendInd], obs_props_list[trendInd], label=curve_label)
+                (h1,) = ax.plot(
+                    exp_props_list[trendInd], obs_props_list[trendInd], label=curve_label
+                )
             plotObjects.append(h1)
     # If we only want to plot one calibration curve,
     elif type(y_std) is not list:
         # Plot
-        h1, = ax.plot(exp_props_list[0], obs_props_list[0], label=curve_label)
+        (h1,) = ax.plot(exp_props_list[0], obs_props_list[0], label=curve_label)
         plotObjects.append(h1)
 
     # Format plot
-    ax.set_xlabel("Expected Cumulative Distribution")
-    ax.set_ylabel("Observed Cumulative Distribution")
-    ax.axis("square")
+    ax.set_xlabel('Expected Cumulative Distribution')
+    ax.set_ylabel('Observed Cumulative Distribution')
+    ax.axis('square')
 
     buff = 0.01
     ax.set_xlim([0 - buff, 1 + buff])
     ax.set_ylim([0 - buff, 1 + buff])
 
     if showTitle == True and type(y_std) is not list:
-        ax.set_title("Average Calibration\n(5-fold Ensemble)")
+        ax.set_title('Average Calibration\n(5-fold Ensemble)')
     elif showTitle == True and type(y_std) is list:
-        ax.set_title("Average Calibration")
+        ax.set_title('Average Calibration')
 
     # Compute miscalibration area list
     miscalibration_areas = []
@@ -835,10 +871,11 @@ def plot_calibration(
             polygon_points = []
             for point in zip(exp_props_list[trendInd], obs_props_list[trendInd]):
                 polygon_points.append(point)
-            for point in zip(reversed(exp_props_list[trendInd]), reversed(exp_props_list[trendInd])):
+            for point in zip(
+                reversed(exp_props_list[trendInd]), reversed(exp_props_list[trendInd])
+            ):
                 polygon_points.append(point)
-            polygon_points.append(
-                (exp_props_list[trendInd][0], obs_props_list[trendInd][0]))
+            polygon_points.append((exp_props_list[trendInd][0], obs_props_list[trendInd][0]))
             polygon = Polygon(polygon_points)
             x, y = polygon.exterior.xy  # original data
             ls = LineString(np.c_[x, y])  # closed, non-simple
@@ -873,61 +910,90 @@ def plot_calibration(
     # then sort the legend labels, line plots, data proportions for plotting, and the colors based on
     # ascending miscalibraton area.
     if leg_labels != None and alphaColorMap == False:
-        legendLabelsSortInfo = sorted(zip(
-            miscalibration_areas, plotObjects, leg_labels, exp_props_list, obs_props_list, colorList))
-        miscalibration_areas = [area for area, plot, label,
-                                exp_props, obs_props, color in legendLabelsSortInfo]
-        plotObjects = [plot for area, plot, label, exp_props,
-                       obs_props, color in legendLabelsSortInfo]
-        leg_labels = [label for area, plot, label, exp_props,
-                      obs_props, color in legendLabelsSortInfo]
-        exp_props_list = [exp_props for area, plot, label,
-                          exp_props, obs_props, color in legendLabelsSortInfo]
-        obs_props_list = [obs_props for area, plot, label,
-                          exp_props, obs_props, color in legendLabelsSortInfo]
-        colorList = [color for area, plot, label, exp_props,
-                     obs_props, color in legendLabelsSortInfo]
+        legendLabelsSortInfo = sorted(
+            zip(
+                miscalibration_areas,
+                plotObjects,
+                leg_labels,
+                exp_props_list,
+                obs_props_list,
+                colorList,
+            )
+        )
+        miscalibration_areas = [
+            area for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        plotObjects = [
+            plot for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        leg_labels = [
+            label for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        exp_props_list = [
+            exp_props
+            for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        obs_props_list = [
+            obs_props
+            for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        colorList = [
+            color for area, plot, label, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
     # Otherwise if we do not want a legend label (which we might not if we are plotting only one calibration curve),
     # then sort everything except the legend labels
     elif leg_labels == None and alphaColorMap == False:
         legendLabelsSortInfo = sorted(
-            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list, colorList))
-        miscalibration_areas = [area for area, plot,
-                                exp_props, obs_props, color in legendLabelsSortInfo]
-        plotObjects = [plot for area, plot, exp_props,
-                       obs_props, color in legendLabelsSortInfo]
-        exp_props_list = [exp_props for area, plot,
-                          exp_props, obs_props, color in legendLabelsSortInfo]
-        obs_props_list = [obs_props for area, plot,
-                          exp_props, obs_props, color in legendLabelsSortInfo]
-        colorList = [color for area, plot, exp_props,
-                     obs_props, color in legendLabelsSortInfo]
+            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list, colorList)
+        )
+        miscalibration_areas = [
+            area for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        plotObjects = [
+            plot for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        exp_props_list = [
+            exp_props for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        obs_props_list = [
+            obs_props for area, plot, exp_props, obs_props, color in legendLabelsSortInfo
+        ]
+        colorList = [color for area, plot, exp_props, obs_props, color in legendLabelsSortInfo]
     if leg_labels != None and alphaColorMap == True:
-        legendLabelsSortInfo = sorted(zip(
-            miscalibration_areas, plotObjects, leg_labels, exp_props_list, obs_props_list))
-        miscalibration_areas = [area for area, plot, label,
-                                exp_props, obs_props in legendLabelsSortInfo]
-        plotObjects = [plot for area, plot, label,
-                       exp_props, obs_props in legendLabelsSortInfo]
-        leg_labels = [label for area, plot, label,
-                      exp_props, obs_props in legendLabelsSortInfo]
-        exp_props_list = [exp_props for area, plot, label,
-                          exp_props, obs_props in legendLabelsSortInfo]
-        obs_props_list = [obs_props for area, plot, label,
-                          exp_props, obs_props in legendLabelsSortInfo]
+        legendLabelsSortInfo = sorted(
+            zip(miscalibration_areas, plotObjects, leg_labels, exp_props_list, obs_props_list)
+        )
+        miscalibration_areas = [
+            area for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        plotObjects = [
+            plot for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        leg_labels = [
+            label for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        exp_props_list = [
+            exp_props for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        obs_props_list = [
+            obs_props for area, plot, label, exp_props, obs_props in legendLabelsSortInfo
+        ]
     # Otherwise if we do not want a legend label (which we might not if we are plotting only ne calibration curve),
     # then sort everything except the legend labels
     elif leg_labels == None and alphaColorMap == True:
         legendLabelsSortInfo = sorted(
-            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list))
-        miscalibration_areas = [area for area, plot,
-                                exp_props, obs_props in legendLabelsSortInfo]
-        plotObjects = [plot for area, plot, exp_props,
-                       obs_props in legendLabelsSortInfo]
-        exp_props_list = [exp_props for area, plot,
-                          exp_props, obs_props in legendLabelsSortInfo]
-        obs_props_list = [obs_props for area, plot,
-                          exp_props, obs_props in legendLabelsSortInfo]
+            zip(miscalibration_areas, plotObjects, exp_props_list, obs_props_list)
+        )
+        miscalibration_areas = [
+            area for area, plot, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        plotObjects = [plot for area, plot, exp_props, obs_props in legendLabelsSortInfo]
+        exp_props_list = [
+            exp_props for area, plot, exp_props, obs_props in legendLabelsSortInfo
+        ]
+        obs_props_list = [
+            obs_props for area, plot, exp_props, obs_props in legendLabelsSortInfo
+        ]
 
     # If we are plotting multiple calibration curves,
     if type(y_std) is list:
@@ -939,45 +1005,72 @@ def plot_calibration(
             # So loop through and only fill in the miscalibration area between calibration curves. This prevents undesirable color blending.
             if showAlpha == True and trendInd == 0:
                 if alphaColorMap == True:
-                    h2 = ax.fill_between(exp_props_list[trendInd], exp_props_list[trendInd],
-                                         obs_props_list[trendInd], alpha=0.2, color=colorList[trendInd])
+                    h2 = ax.fill_between(
+                        exp_props_list[trendInd],
+                        exp_props_list[trendInd],
+                        obs_props_list[trendInd],
+                        alpha=0.2,
+                        color=colorList[trendInd],
+                    )
                 else:
-                    h2 = ax.fill_between(exp_props_list[trendInd], exp_props_list[trendInd],
-                                         obs_props_list[trendInd], alpha=0.2, color=colorList[trendInd])
+                    h2 = ax.fill_between(
+                        exp_props_list[trendInd],
+                        exp_props_list[trendInd],
+                        obs_props_list[trendInd],
+                        alpha=0.2,
+                        color=colorList[trendInd],
+                    )
                 fillObjects.append(h2)
             # If we are plotting any curve that is not the first calibration curve,
             # then fill in the area between curves.
             # obs_props_list[trendInd - 1], obs_props_list[trendInd] inside ax.fill_between() does this
             elif showAlpha == True and trendInd > 0:
                 if alphaColorMap == False:
-                    h2 = ax.fill_between(exp_props_list[trendInd], obs_props_list[trendInd - 1],
-                                         obs_props_list[trendInd], alpha=0.2, color=colorList[trendInd])
+                    h2 = ax.fill_between(
+                        exp_props_list[trendInd],
+                        obs_props_list[trendInd - 1],
+                        obs_props_list[trendInd],
+                        alpha=0.2,
+                        color=colorList[trendInd],
+                    )
                 else:
                     h2 = ax.fill_between(
-                        exp_props_list[trendInd], obs_props_list[trendInd - 1], obs_props_list[trendInd], alpha=0.2)
+                        exp_props_list[trendInd],
+                        obs_props_list[trendInd - 1],
+                        obs_props_list[trendInd],
+                        alpha=0.2,
+                    )
                 fillObjects.append(h2)
             else:
-                h2 = ax.fill_between(exp_props_list[trendInd], exp_props_list[trendInd],
-                                     obs_props_list[trendInd], alpha=0.0, color=colorList[trendInd])
+                h2 = ax.fill_between(
+                    exp_props_list[trendInd],
+                    exp_props_list[trendInd],
+                    obs_props_list[trendInd],
+                    alpha=0.0,
+                    color=colorList[trendInd],
+                )
                 fillObjects.append(h2)
     # If we are only plotting one calibration curve,
     else:
         # If we are showing the filled in area of the calibration curve,
         if showAlpha == True:
             h2 = ax.fill_between(
-                exp_props_list[0], exp_props_list[0], obs_props_list[0], alpha=0.2)
+                exp_props_list[0], exp_props_list[0], obs_props_list[0], alpha=0.2
+            )
             fillObjects.append(h2)
         else:
             h2 = ax.fill_between(
-                exp_props_list[0], exp_props_list[0], obs_props_list[0], alpha=0.0)
+                exp_props_list[0], exp_props_list[0], obs_props_list[0], alpha=0.0
+            )
             fillObjects.append(h2)
 
     if alphaColorMap == True:
         # miscalibrationAreaColorMap = plt.cm.ScalarMappable(cmap="Blues", norm=matplotlib.colors.Normalize(vmin=miscalibration_areas[-1], vmax=miscalibration_areas[0]))
-        miscalibrationAreaColorMap = matplotlib.cm.get_cmap("Blues_r")
+        miscalibrationAreaColorMap = matplotlib.cm.get_cmap('Blues_r')
         colorInterceptFactor = 0.15
         colorNorm = matplotlib.colors.Normalize(
-            vmin=miscalibration_areas[0], vmax=0.5 + colorInterceptFactor)
+            vmin=miscalibration_areas[0], vmax=0.5 + colorInterceptFactor
+        )
 
         miscalibrationAreaNormList = []
         miscalibrationColorList = []
@@ -985,18 +1078,17 @@ def plot_calibration(
         alphaScaleFactor = 0.8
 
         for trendInd in range(len(plotObjects)):
-            miscalibrationAreaNormList.append(
-                colorNorm(miscalibration_areas[trendInd]))
-            miscalibrationAlpha = alphaScaleFactor * \
-                (1 - miscalibrationAreaNormList[trendInd])
+            miscalibrationAreaNormList.append(colorNorm(miscalibration_areas[trendInd]))
+            miscalibrationAlpha = alphaScaleFactor * (1 - miscalibrationAreaNormList[trendInd])
             miscalibrationAlphaList.append(miscalibrationAlpha)
 
-            miscalibrationColorList.append(miscalibrationAreaColorMap(
-                miscalibrationAreaNormList[trendInd]))
+            miscalibrationColorList.append(
+                miscalibrationAreaColorMap(miscalibrationAreaNormList[trendInd])
+            )
             if trendInd == 0:
-                plotObjects[trendInd].set_color("black")
+                plotObjects[trendInd].set_color('black')
             if trendInd > 0:
-                plotObjects[trendInd].set_linestyle("None")
+                plotObjects[trendInd].set_linestyle('None')
                 plotObjects[trendInd].set(alpha=0.0)
 
         for trendInd in range(len(fillObjects)):
@@ -1007,13 +1099,16 @@ def plot_calibration(
     if showLegend == True and type(y_std) is list:
         for trendInd in range(len(y_std)):
             # New legend label that includes the miscalibration area
-            newLabel = "(" + leg_labels[trendInd] + \
-                ", %.2f)" % miscalibration_areas[trendInd]
+            newLabel = '(' + leg_labels[trendInd] + ', %.2f)' % miscalibration_areas[trendInd]
             leg_labels_with_miscalibration.append(newLabel)
         # Generate legend
         if alphaColorMap == False:
             leg = ax.legend(
-                handles=plotObjects, labels=leg_labels_with_miscalibration, title=legendTitle, loc=leg_loc)
+                handles=plotObjects,
+                labels=leg_labels_with_miscalibration,
+                title=legendTitle,
+                loc=leg_loc,
+            )
             leg._legend_box.align = legendAlign
         else:
             legendHandles = []
@@ -1021,21 +1116,24 @@ def plot_calibration(
             for trendInd in range(1, len(y_std)):
                 legendHandles.append(fillObjects[trendInd])
             leg = ax.legend(
-                handles=legendHandles, labels=leg_labels_with_miscalibration, title=legendTitle, loc=leg_loc)
+                handles=legendHandles,
+                labels=leg_labels_with_miscalibration,
+                title=legendTitle,
+                loc=leg_loc,
+            )
             leg._legend_box.align = legendAlign
     # If a legend is being plotted for one calibration curve,
     elif showLegend == True and type(y_std) is not list:
         # No need to show the miscalibration area in the legend, just label the line.
-        leg = ax.legend(handles=plotObjects, labels=leg_labels,
-                        title=legendTitle, loc=leg_loc)
+        leg = ax.legend(handles=plotObjects, labels=leg_labels, title=legendTitle, loc=leg_loc)
         leg._legend_box.align = legendAlign
         # Show the miscalibration of the single calibration curve in its own text box
         ax.text(
             x=0.99,
             y=0.001,
-            s="Miscalibration area = %.2f" % miscalibration_areas[0],
-            verticalalignment="bottom",
-            horizontalalignment="right",
+            s='Miscalibration area = %.2f' % miscalibration_areas[0],
+            verticalalignment='bottom',
+            horizontalalignment='right',
             fontsize=10,
         )
     # If no legend is desired for a single calibration curve,
@@ -1044,9 +1142,9 @@ def plot_calibration(
         ax.text(
             x=0.99,
             y=0.001,
-            s="Miscalibration area = %.2f" % miscalibration_areas[0],
-            verticalalignment="bottom",
-            horizontalalignment="right",
+            s='Miscalibration area = %.2f' % miscalibration_areas[0],
+            verticalalignment='bottom',
+            horizontalalignment='right',
             fontsize=10,
         )
 
@@ -1059,15 +1157,27 @@ def plot_adversarial_group_calibration(
     y_true: np.ndarray,
     leg_loc: Union[int, str] = 4,
     leg_labels: Union[list, None] = None,
-    colorList: list = ["#1f77b4", "darkorange",
-                       "darkgreen", "#1f77b4", "darkorange", "darkgreen"],
+    colorList: list = [
+        '#1f77b4',
+        'darkorange',
+        'darkgreen',
+        '#1f77b4',
+        'darkorange',
+        'darkgreen',
+    ],
     markerList: list = ['o', 's', 'p', '^', 'D', 'P'],
-    lineList: list = ['dashed', 'dotted', 'dashdot', 'solid',
-                      (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5, 1, 5))],
-    legendTitle: Union[str, None] = "UQ Techniques",
+    lineList: list = [
+        'dashed',
+        'dotted',
+        'dashdot',
+        'solid',
+        (0, (3, 1, 1, 1, 1, 1)),
+        (0, (3, 5, 1, 5, 1, 5)),
+    ],
+    legendTitle: Union[str, None] = 'UQ Techniques',
     n_subset: Union[int, None] = None,
     groupSizeLims: Union[tuple, None] = (0.0, 1.0),
-    cali_type: str = "mean_abs",
+    cali_type: str = 'mean_abs',
     curve_label: Union[str, None] = None,
     group_size: Union[np.ndarray, list, None] = None,
     score_mean: Union[np.ndarray, list, None] = None,
@@ -1114,7 +1224,8 @@ def plot_adversarial_group_calibration(
             filteredDatasets = []
             for trendInd in range(len(y_std)):
                 filteredDataset = filter_subset(
-                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed)
+                    [y_pred[trendInd], y_std[trendInd], y_true[trendInd]], n_subset, seed
+                )
                 filteredDatasets.append(filteredDataset)
 
         adv_group_cali_namespaces = []
@@ -1124,7 +1235,11 @@ def plot_adversarial_group_calibration(
         if (group_size is None) or (score_mean is None):
             for trendInd in range(len(y_std)):
                 adv_group_cali_namespace = adversarial_group_calibration(
-                    y_pred[trendInd], y_std[trendInd], y_true, cali_type=cali_type, groupSizeLims=groupSizeLims
+                    y_pred[trendInd],
+                    y_std[trendInd],
+                    y_true,
+                    cali_type=cali_type,
+                    groupSizeLims=groupSizeLims,
                 )
 
                 group_size = adv_group_cali_namespace.group_size
@@ -1144,10 +1259,10 @@ def plot_adversarial_group_calibration(
                 score_stderr_iter = np.array(score_stderr[trendInd]).flatten()
 
                 if (group_size_iter.shape != score_mean_iter.shape) or (
-                        group_size_iter.shape != score_stderr.shape
+                    group_size_iter.shape != score_stderr.shape
                 ):
                     raise RunetimeError(
-                        "Input arrays for adversarial group calibration shape mismatch"
+                        'Input arrays for adversarial group calibration shape mismatch'
                     )
 
                 group_sizes.append(group_size_iter)
@@ -1159,29 +1274,48 @@ def plot_adversarial_group_calibration(
             # Make sure that there are enough legend labels for the amount of trends
             assert len(leg_labels) == numLineTrends
             for trendInd in range(len(y_std)):
-                h1, = ax.plot(group_sizes[trendInd], score_means[trendInd], color="black", marker=markerList[trendInd],
-                              markerfacecolor=colorList[trendInd], markeredgecolor="black", markeredgewidth="2", linewidth=2, linestyle=lineList[trendInd],
-                              markersize=8, label=leg_labels[trendInd])
+                (h1,) = ax.plot(
+                    group_sizes[trendInd],
+                    score_means[trendInd],
+                    color='black',
+                    marker=markerList[trendInd],
+                    markerfacecolor=colorList[trendInd],
+                    markeredgecolor='black',
+                    markeredgewidth='2',
+                    linewidth=2,
+                    linestyle=lineList[trendInd],
+                    markersize=8,
+                    label=leg_labels[trendInd],
+                )
                 ax.fill_between(
                     group_sizes[trendInd],
                     score_means[trendInd] - score_stderrs[trendInd],
                     score_means[trendInd] + score_stderrs[trendInd],
                     alpha=0.2,
-                    color=colorList[trendInd]
+                    color=colorList[trendInd],
                 )
 
                 plotObjects.append(h1)
         else:
             for trendInd in range(len(y_std)):
-                h1, = ax.plot(group_sizes[trendInd], score_means[trendInd], color="black", marker=markerList[trendInd],
-                              markerfacecolor=colorList[trendInd], markeredgecolor="black", markeredgewidth="2", linewidth=2, linestyle=lineList[trendInd],
-                              markersize=8)
+                (h1,) = ax.plot(
+                    group_sizes[trendInd],
+                    score_means[trendInd],
+                    color='black',
+                    marker=markerList[trendInd],
+                    markerfacecolor=colorList[trendInd],
+                    markeredgecolor='black',
+                    markeredgewidth='2',
+                    linewidth=2,
+                    linestyle=lineList[trendInd],
+                    markersize=8,
+                )
                 ax.fill_between(
                     group_sizes[trendInd],
                     score_means[trendInd] - score_stderrs[trendInd],
                     score_means[trendInd] + score_stderrs[trendInd],
                     alpha=0.2,
-                    color=colorList[trendInd]
+                    color=colorList[trendInd],
                 )
 
                 plotObjects.append(h1)
@@ -1189,8 +1323,7 @@ def plot_adversarial_group_calibration(
     else:
         # Optionally select a subset
         if n_subset is not None:
-            [y_pred, y_std, y_true] = filter_subset(
-                [y_pred, y_std, y_true], n_subset, seed)
+            [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
         # Compute group_size, score_mean, score_stderr
         if (group_size is None) or (score_mean is None):
@@ -1210,22 +1343,32 @@ def plot_adversarial_group_calibration(
                 group_size.shape != score_stderr.shape
             ):
                 raise RuntimeError(
-                    "Input arrays for adversarial group calibration shape mismatch"
+                    'Input arrays for adversarial group calibration shape mismatch'
                 )
 
         # Set label
         if curve_label is None:
-            curve_label = "Predictor"
+            curve_label = 'Predictor'
 
         # Plot
-        h1, = ax.plot(group_size, score_mean, "-o", label=curve_label, c="black", markerfacecolor="#1f77b4", markeredgecolor="black",
-                      markeredgewidth='2', linewidth=2, markersize=8)
+        (h1,) = ax.plot(
+            group_size,
+            score_mean,
+            '-o',
+            label=curve_label,
+            c='black',
+            markerfacecolor='#1f77b4',
+            markeredgecolor='black',
+            markeredgewidth='2',
+            linewidth=2,
+            markersize=8,
+        )
         ax.fill_between(
             group_size,
             score_mean - score_stderr,
             score_mean + score_stderr,
             alpha=0.2,
-            color=colorList[trendInd]
+            color=colorList[trendInd],
         )
 
         plotObjects.append(h1)
@@ -1234,20 +1377,19 @@ def plot_adversarial_group_calibration(
     buff = 0.02
     ax.set_xlim([groupSizeLims[0] - buff, groupSizeLims[1] + buff])
     ax.set_ylim([0 - buff, 0.5 + buff])
-    ax.set_xlabel("Group Size (Fraction of Test Set)")
-    if cali_type == "miscal_area":
-        ax.set_ylabel("Miscalibration Area of Worst Group")
+    ax.set_xlabel('Group Size (Fraction of Test Set)')
+    if cali_type == 'miscal_area':
+        ax.set_ylabel('Miscalibration Area of Worst Group')
     else:
-        ax.set_ylabel("Calibration Error of Worst Group")
+        ax.set_ylabel('Calibration Error of Worst Group')
     if showTitle == True and type(y_std) is not list:
-        ax.set_title("Adversarial Group Calibration (MC Dropout)")
+        ax.set_title('Adversarial Group Calibration (MC Dropout)')
     elif showTitle == True and type(y_std) is list:
-        ax.set_title("Adversarial Group Calibration")
+        ax.set_title('Adversarial Group Calibration')
 
     # Legend
     if showLegend == True:
-        ax.legend(handles=plotObjects, labels=leg_labels,
-                  title=legendTitle, loc=4)
+        ax.legend(handles=plotObjects, labels=leg_labels, title=legendTitle, loc=4)
 
     return ax
 
@@ -1279,17 +1421,15 @@ def plot_sharpness(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # If bin count is specified, change matlotlib rcParams["hist.bins"] value in histogram,
     if bins is not None:
         # Plot sharpness curve
-        ax.hist(y_std, bins=bins, edgecolor="#1f77b4",
-                color="#a5c8e1", density=True)
+        ax.hist(y_std, bins=bins, edgecolor='#1f77b4', color='#a5c8e1', density=True)
     else:
         # Plot sharpness curve
-        ax.hist(y_std, edgecolor="#1f77b4", color="#a5c8e1", density=True)
+        ax.hist(y_std, edgecolor='#1f77b4', color='#a5c8e1', density=True)
 
     # Format plot
     if xlims == None:
@@ -1297,42 +1437,41 @@ def plot_sharpness(
         ax.set_xlim(xlims)
     else:
         ax.set_xlim(xlims)
-    ax.set_xlabel("Adsorption Energy Uncertainty (\u03C3, eV)")
-    ax.set_ylabel("Normalized Frequency")
+    ax.set_xlabel('Adsorption Energy Uncertainty (\u03C3, eV)')
+    ax.set_ylabel('Normalized Frequency')
 
     if showTitle == True:
-        ax.set_title("Adsorption Energy Uncertainty (MC Dropout)")
+        ax.set_title('Adsorption Energy Uncertainty (MC Dropout)')
     ax.set_yticklabels([])
     ax.set_yticks([])
 
     # Calculate and report sharpness
     sharpness = np.sqrt(np.mean(y_std ** 2))
-    ax.axvline(x=sharpness, label="sharpness",
-               color="#CD0000", linewidth=2, ls="--")
+    ax.axvline(x=sharpness, label='sharpness', color='#CD0000', linewidth=2, ls='--')
 
     if sharpness < (xlims[0] + xlims[1]) / 2:
-        text = "\n  Sharpness = %.2f eV" % sharpness
-        h_align = "left"
+        text = '\n  Sharpness = %.2f eV' % sharpness
+        h_align = 'left'
     else:
-        text = "\nSharpness = %.2f eV" % sharpness
-        h_align = "right"
+        text = '\nSharpness = %.2f eV' % sharpness
+        h_align = 'right'
 
     ax.text(
         x=sharpness + 0.05,
         y=ax.get_ylim()[1],
         s=text,
-        verticalalignment="top",
+        verticalalignment='top',
         horizontalalignment=h_align,
-        fontsize="small",
+        fontsize='small',
     )
 
     ax.text(
         x=ax.get_xlim()[1] - 0.10,
         y=ax.get_ylim()[1] - 0.03,
-        s=str(bins) + " Bins",
-        verticalalignment="top",
-        horizontalalignment="right",
-        fontsize="small",
+        s=str(bins) + ' Bins',
+        verticalalignment='top',
+        horizontalalignment='right',
+        fontsize='small',
     )
     return ax
 
@@ -1366,8 +1505,7 @@ def plot_residuals_vs_stds(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Compute residuals
     residuals = y_true - y_pred
@@ -1377,8 +1515,9 @@ def plot_residuals_vs_stds(
     y_std_scaled = (y_std / np.sum(y_std)) * residuals_sum
 
     # Plot residuals vs standard devs
-    h1 = ax.plot(y_std_scaled, np.abs(residuals), ".",
-                 c="#1f77b4", mec="black", markeredgewidth=1.0)
+    h1 = ax.plot(
+        y_std_scaled, np.abs(residuals), '.', c='#1f77b4', mec='black', markeredgewidth=1.0
+    )
 
     # Plot 45-degree line
     xlims = ax.get_xlim()
@@ -1387,22 +1526,21 @@ def plot_residuals_vs_stds(
     # h2 = ax.plot(lims, lims, "--", c="#CD0000")
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], "--", transform=ax.transAxes,
-                 c="#CD0000", linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
 
     # Legend
     if showLegend == True:
-        ax.legend([h2[0]], ["y = x"], title=str(n_subset) + " Clusters", loc=4)
+        ax.legend([h2[0]], ['y = x'], title=str(n_subset) + ' Clusters', loc=4)
 
     # Format plot
-    ax.set_xlabel("Adsorption Energy Uncertainty\n(Scaled)")
-    ax.set_ylabel("Residual Error\n(Absolute, eV)")
+    ax.set_xlabel('Adsorption Energy Uncertainty\n(Scaled)')
+    ax.set_ylabel('Residual Error\n(Absolute, eV)')
 
     if showTitle == True:
-        ax.set_title("Residuals vs. Predictive Uncertainty\n(MC Dropout)")
+        ax.set_title('Residuals vs. Predictive Uncertainty\n(MC Dropout)')
     ax.set_xlim(lims)
     ax.set_ylim(lims)
-    ax.axis("square")
+    ax.axis('square')
 
     return ax
 
@@ -1457,8 +1595,7 @@ def plot_residuals_vs_stds_hexagonal(
 
     # Optionally select a subset
     if n_subset is not None:
-        [y_pred, y_std, y_true] = filter_subset(
-            [y_pred, y_std, y_true], n_subset, seed)
+        [y_pred, y_std, y_true] = filter_subset([y_pred, y_std, y_true], n_subset, seed)
 
     # Compute residuals
     residuals = y_true - y_pred
@@ -1486,44 +1623,69 @@ def plot_residuals_vs_stds_hexagonal(
         lims_ext_xlims = xlims
 
     # Identity line
-    h2 = ax.plot([0, 1], [0, 1], "--", transform=ax.transAxes,
-                 c="#CD0000", linewidth=2)
+    h2 = ax.plot([0, 1], [0, 1], '--', transform=ax.transAxes, c='#CD0000', linewidth=2)
 
     if colorRange != None:
-        h1 = ax.hexbin(y_std_scaled, np.abs(residuals), gridsize=gridSize, bins=bins, extent=(lims_ext_xlims[0], lims_ext_xlims[1], lims_ext_ylims[0], lims_ext_ylims[1]), cmap="Blues",
-                       vmin=colorRange[0], vmax=colorRange[1], linewidths=0.1)
+        h1 = ax.hexbin(
+            y_std_scaled,
+            np.abs(residuals),
+            gridsize=gridSize,
+            bins=bins,
+            extent=(
+                lims_ext_xlims[0],
+                lims_ext_xlims[1],
+                lims_ext_ylims[0],
+                lims_ext_ylims[1],
+            ),
+            cmap='Blues',
+            vmin=colorRange[0],
+            vmax=colorRange[1],
+            linewidths=0.1,
+        )
     else:
-        h1 = ax.hexbin(y_std_scaled, np.abs(residuals), gridsize=gridSize, bins=bins, extent=(
-            lims_ext_xlims[0], lims_ext_xlims[1], lims_ext_ylims[0], lims_ext_ylims[1]), cmap="Blues", linewidths=0.1)
+        h1 = ax.hexbin(
+            y_std_scaled,
+            np.abs(residuals),
+            gridsize=gridSize,
+            bins=bins,
+            extent=(
+                lims_ext_xlims[0],
+                lims_ext_xlims[1],
+                lims_ext_ylims[0],
+                lims_ext_ylims[1],
+            ),
+            cmap='Blues',
+            linewidths=0.1,
+        )
 
     counts = h1.get_array()
 
     if showColorBar == True:
         cb = subFig.colorbar(h1, ax=ax, pad=0.01)
         if bins == None:
-            cb.set_label("Samples")
-        elif bins == "log":
-            cb.set_label("log10(Samples)")
+            cb.set_label('Samples')
+        elif bins == 'log':
+            cb.set_label('log10(Samples)')
 
     if n_subset is not None:
-        titleName = str(n_subset) + " Clusters"
+        titleName = str(n_subset) + ' Clusters'
     else:
         titleName = None
 
     # Legend
     if showLegend == True:
-        ax.legend([h2[0]], ["Perfect Fit"], title=titleName, loc=leg_loc)
+        ax.legend([h2[0]], ['Perfect Fit'], title=titleName, loc=leg_loc)
 
     # Format plot
-    ax.set_xlabel("Adsorption Energy Uncertainty\n(Scaled)")
-    ax.set_ylabel("Residual Error\n(Absolute, eV)")
+    ax.set_xlabel('Adsorption Energy Uncertainty\n(Scaled)')
+    ax.set_ylabel('Residual Error\n(Absolute, eV)')
 
     if showTitle == True:
-        ax.set_title("Residuals vs. Predictive Uncertainty\n(MC Dropout)")
+        ax.set_title('Residuals vs. Predictive Uncertainty\n(MC Dropout)')
     ax.set_xlim(lims_ext_xlims)
     ax.set_ylim(lims_ext_ylims)
 
-    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+    ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
     # ax.axis("square")
 
     # If we want to count the minimum or maximum counts in the hexagons,
@@ -1587,8 +1749,7 @@ def plot_violin_box_plot(
 
             # Move the plot slightly upwards by increasing the plotting range to prevent the violin/box plot from being obscured by the figure border.
             percentToBump = 0.05
-            amountToBump = (lims_ext_ylims[1] -
-                            lims_ext_ylims[0])*percentToBump
+            amountToBump = (lims_ext_ylims[1] - lims_ext_ylims[0]) * percentToBump
             newMin = lims_ext_ylims[0] - amountToBump
             newMax = lims_ext_ylims[1] + amountToBump
 
@@ -1607,8 +1768,7 @@ def plot_violin_box_plot(
 
             # Move the plot slightly upwards by increasing the plotting range to prevent the violin/box plot from being obscured by the figure border.
             percentToBump = 0.05
-            amountToBump = (lims_ext_ylims[1] -
-                            lims_ext_ylims[0])*percentToBump
+            amountToBump = (lims_ext_ylims[1] - lims_ext_ylims[0]) * percentToBump
             newMin = lims_ext_ylims[0] - amountToBump
             newMax = lims_ext_ylims[1] + amountToBump
 
@@ -1618,8 +1778,15 @@ def plot_violin_box_plot(
             lims_ext_ylims = ylims
 
     # Violin plot
-    h1 = ax.violinplot(y_std, vert=showVertical, widths=width, showmeans=showMeans,
-                       showextrema=showExtrema, showmedians=showMeans, points=kdePoints)
+    h1 = ax.violinplot(
+        y_std,
+        vert=showVertical,
+        widths=width,
+        showmeans=showMeans,
+        showextrema=showExtrema,
+        showmedians=showMeans,
+        points=kdePoints,
+    )
     # Violin plot is a polycollection, so access the polycollection elements and use polycollection features to change the color
     for violinPart in h1['bodies']:
         violinPart.set_facecolor('steelblue')
@@ -1628,14 +1795,21 @@ def plot_violin_box_plot(
         violinPart.set_alpha(0.45)
 
     # Box plot
-    h2 = ax.boxplot(y_std, vert=showVertical, widths=width/5, whis=whiskers, showmeans=True, meanline=True, showfliers=showFliers,
-                    boxprops={'linewidth': 1.5},
-                    whiskerprops={'linewidth': 1.5},
-                    capprops={'linewidth': 1.5},
-                    medianprops={'linewidth': 1.5, 'color': 'black'},
-                    meanprops={'linestyle': (
-                        0, (1, 1)), 'linewidth': 1.5, 'color': '#CD0000'},
-                    flierprops={'marker': '_', 'markeredgewidth': 0.25})
+    h2 = ax.boxplot(
+        y_std,
+        vert=showVertical,
+        widths=width / 5,
+        whis=whiskers,
+        showmeans=True,
+        meanline=True,
+        showfliers=showFliers,
+        boxprops={'linewidth': 1.5},
+        whiskerprops={'linewidth': 1.5},
+        capprops={'linewidth': 1.5},
+        medianprops={'linewidth': 1.5, 'color': 'black'},
+        meanprops={'linestyle': (0, (1, 1)), 'linewidth': 1.5, 'color': '#CD0000'},
+        flierprops={'marker': '_', 'markeredgewidth': 0.25},
+    )
 
     # if colorRange != None:
     #    h1 = ax.hexbin(y_std_scaled, np.abs(residuals), gridsize = gridSize, bins=bins, extent = (lims_ext_xlims[0], lims_ext_xlims[1], lims_ext_ylims[0], lims_ext_ylims[1]), cmap = "Blues",
@@ -1648,26 +1822,25 @@ def plot_violin_box_plot(
     #    ax.legend([h2[0]], ["Perfect Fit"], title = titleName, loc=leg_loc)
 
     # Format plot
-    ax.set_ylabel("Adsorption Energy Uncertainty\n(\u03C3, eV)")
-    ax.set_xlabel("5-fold Ensemble")
+    ax.set_ylabel('Adsorption Energy Uncertainty\n(\u03C3, eV)')
+    ax.set_xlabel('5-fold Ensemble')
     ax.set_xticklabels([])
 
     if showTitle == True:
-        ax.set_title(
-            "Adsorption Energy Uncertainty Violin Plot\n(5-fold Ensemble)")
+        ax.set_title('Adsorption Energy Uncertainty Violin Plot\n(5-fold Ensemble)')
     # ax.set_xlim(lims_ext_xlims)
     ax.set_ylim(lims_ext_ylims)
 
     if aspectRatio != None:
-        ax.set_aspect(aspectRatio / ax.get_data_ratio(), adjustable="box")
+        ax.set_aspect(aspectRatio / ax.get_data_ratio(), adjustable='box')
     else:
-        ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable="box")
+        ax.set_aspect(1.0 / ax.get_data_ratio(), adjustable='box')
 
     # If we are labelling the sharpness,
     if statLabels is not None:
         # Get the xLims of each box plot
         box_xLims = []
-        for element in ["medians"]:
+        for element in ['medians']:
             for lineInd in range(len(h2[element])):
                 # Returns data coordinates
                 (xLeft, y), (xRight, _) = h2[element][lineInd].get_xydata()
@@ -1675,20 +1848,43 @@ def plot_violin_box_plot(
 
         # Plot the sharpness line and label it
         for statInd in range(len(statLabels)):
-            ax.plot([box_xLims[statInd][0][0], box_xLims[statInd][0][1]], [statLabels[statInd][0][1],
-                    statLabels[statInd][0][1]], color="#CD0000", linewidth=1.5, linestyle=(0, (1, 1)))
-            labelXCenter = box_xLims[statInd][0][1] + \
-                (box_xLims[statInd][0][1] - box_xLims[statInd][0][0])/8
+            ax.plot(
+                [box_xLims[statInd][0][0], box_xLims[statInd][0][1]],
+                [statLabels[statInd][0][1], statLabels[statInd][0][1]],
+                color='#CD0000',
+                linewidth=1.5,
+                linestyle=(0, (1, 1)),
+            )
+            labelXCenter = (
+                box_xLims[statInd][0][1]
+                + (box_xLims[statInd][0][1] - box_xLims[statInd][0][0]) / 8
+            )
             labelYCenter = statLabels[statInd][0][1]
-            subStr = statLabels[statInd][0][0] + " = " + \
-                "{:<6.3f}".format(statLabels[statInd][0][1])
-            ax.text(labelXCenter, labelYCenter, subStr, fontsize=8, verticalalignment="center", horizontalalignment="left",
-                    color="#CD0000", bbox=dict(edgecolor="black", facecolor="white", linewidth=1.0, alpha=1.0, pad=0.75), weight="bold")
+            subStr = (
+                statLabels[statInd][0][0]
+                + ' = '
+                + '{:<6.3f}'.format(statLabels[statInd][0][1])
+            )
+            ax.text(
+                labelXCenter,
+                labelYCenter,
+                subStr,
+                fontsize=8,
+                verticalalignment='center',
+                horizontalalignment='left',
+                color='#CD0000',
+                bbox=dict(
+                    edgecolor='black', facecolor='white', linewidth=1.0, alpha=1.0, pad=0.75
+                ),
+                weight='bold',
+            )
 
     return ax
 
 
-def filter_subset(input_list: List[List[Any]], n_subset: int, seed: Union[int, None] = None) -> List[List[Any]]:
+def filter_subset(
+    input_list: List[List[Any]], n_subset: int, seed: Union[int, None] = None
+) -> List[List[Any]]:
     """Keep only n_subset random indices from all lists given in input_list.
 
     Args:
@@ -1715,19 +1911,18 @@ def filter_subset(input_list: List[List[Any]], n_subset: int, seed: Union[int, N
     return output_list
 
 
-def set_style(style_str: str = "default") -> NoReturn:
+def set_style(style_str: str = 'default') -> NoReturn:
     """Set the matplotlib plotting style.
 
     Args:
         style_str: string for style file.
     """
-    if style_str == "default":
-        plt.style.use(
-            (pathlib.Path(__file__).parent / "matplotlibrc").resolve())
+    if style_str == 'default':
+        plt.style.use((pathlib.Path(__file__).parent / 'matplotlibrc').resolve())
 
 
 def save_figure(
-    file_name: str = "figure",
+    file_name: str = 'figure',
     ext_list: Union[list, str, None] = None,
     white_background: bool = True,
 ) -> NoReturn:
@@ -1741,20 +1936,20 @@ def save_figure(
 
     # Default ext_list
     if ext_list is None:
-        ext_list = ["pdf", "png"]
+        ext_list = ['pdf', 'png']
 
     # If ext_list is a single str
     if isinstance(ext_list, str):
         ext_list = [ext_list]
 
     # Set facecolor and edgecolor
-    (fc, ec) = ("w", "w") if white_background else ("none", "none")
+    (fc, ec) = ('w', 'w') if white_background else ('none', 'none')
 
     # Save each type in ext_list
     for ext in ext_list:
-        save_str = file_name + "." + ext
-        plt.savefig(save_str, bbox_inches="tight", facecolor=fc, edgecolor=ec)
-        print(f"Saved figure {save_str}")
+        save_str = file_name + '.' + ext
+        plt.savefig(save_str, bbox_inches='tight', facecolor=fc, edgecolor=ec)
+        print(f'Saved figure {save_str}')
 
 
 def update_rc(key_str: str, value: Any) -> NoReturn:

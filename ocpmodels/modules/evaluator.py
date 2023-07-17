@@ -31,44 +31,45 @@ with the relevant metrics computed.
 
 class Evaluator:
     task_metrics = {
-        "s2ef": [
-            "forcesx_mae",
-            "forcesy_mae",
-            "forcesz_mae",
-            "forces_mae",
-            "forces_cos",
-            "forces_magnitude",
-            "energy_mae",
-            "energy_force_within_threshold",
+        's2ef': [
+            'forcesx_mae',
+            'forcesy_mae',
+            'forcesz_mae',
+            'forces_mae',
+            'forces_cos',
+            'forces_magnitude',
+            'energy_mae',
+            'energy_force_within_threshold',
         ],
-        "is2rs": [
-            "average_distance_within_threshold",
-            "positions_mae",
-            "positions_mse",
-        ],
-        "is2re": ["energy_mae", "energy_mse", "energy_within_threshold"],
+        'is2rs': ['average_distance_within_threshold', 'positions_mae', 'positions_mse',],
+        'is2re': ['energy_mae', 'energy_mse', 'energy_within_threshold'],
         # Custom is2re task for deep evidential regression
-        "is2re_evidential": ["energy_nll", "energy_mae", "energy_mse", "energy_within_threshold"]
+        'is2re_evidential': [
+            'energy_nll',
+            'energy_mae',
+            'energy_mse',
+            'energy_within_threshold',
+        ],
     }
 
     task_attributes = {
-        "s2ef": ["energy", "forces", "natoms"],
-        "is2rs": ["positions", "cell", "pbc", "natoms"],
-        "is2re": ["energy"],
+        's2ef': ['energy', 'forces', 'natoms'],
+        'is2rs': ['positions', 'cell', 'pbc', 'natoms'],
+        'is2re': ['energy'],
         # Custom is2re task for deep evidential regression
-        "is2re_evidential": ["energy"],
+        'is2re_evidential': ['energy'],
     }
 
     task_primary_metric = {
-        "s2ef": "energy_force_within_threshold",
-        "is2rs": "average_distance_within_threshold",
-        "is2re": "energy_mae",
+        's2ef': 'energy_force_within_threshold',
+        'is2rs': 'average_distance_within_threshold',
+        'is2re': 'energy_mae',
         # Custom is2re task for deep evidential regression
-        "is2re_evidential": "energy_nll"
+        'is2re_evidential': 'energy_nll',
     }
 
     def __init__(self, task=None, lamb=0.0):
-        assert task in ["s2ef", "is2rs", "is2re", "is2re_evidential"]
+        assert task in ['s2ef', 'is2rs', 'is2re', 'is2re_evidential']
         self.task = task
         self.metric_fn = self.task_metrics[task]
 
@@ -77,12 +78,12 @@ class Evaluator:
 
     def eval(self, prediction, target, prev_metrics={}):
         for attr in self.task_attributes[self.task]:
-            if self.task == "is2re_evidential":
+            if self.task == 'is2re_evidential':
                 # Ensure all evidential hyperdistribution parameters are in the prediction set.
                 assert attr in prediction
                 # Also ensure that the target is adsorption energy.
                 # Note: Evidential hyperdistribution parameters are only in the predictions, not the target.
-                assert self.task_attributes["is2re"][0] in target
+                assert self.task_attributes['is2re'][0] in target
 
                 # Ensure # of predicted samples equals number of targets
                 assert prediction[attr].shape == target[attr].shape
@@ -97,7 +98,7 @@ class Evaluator:
         for fn in self.task_metrics[self.task]:
 
             # If evidential error is being calculated, pass lambda to the evidential error function as well.
-            if fn == "energy_nll":
+            if fn == 'energy_nll':
                 res = eval(fn)(prediction, target, self.lamb)
             else:
                 res = eval(fn)(prediction, target)
@@ -108,25 +109,21 @@ class Evaluator:
     def update(self, key, stat, metrics):
         if key not in metrics:
             metrics[key] = {
-                "metric": None,
-                "total": 0,
-                "numel": 0,
+                'metric': None,
+                'total': 0,
+                'numel': 0,
             }
 
         if isinstance(stat, dict):
             # If dictionary, we expect it to have `metric`, `total`, `numel`.
-            metrics[key]["total"] += stat["total"]
-            metrics[key]["numel"] += stat["numel"]
-            metrics[key]["metric"] = (
-                metrics[key]["total"] / metrics[key]["numel"]
-            )
+            metrics[key]['total'] += stat['total']
+            metrics[key]['numel'] += stat['numel']
+            metrics[key]['metric'] = metrics[key]['total'] / metrics[key]['numel']
         elif isinstance(stat, float) or isinstance(stat, int):
             # If float or int, just add to the total and increment numel by 1.
-            metrics[key]["total"] += stat
-            metrics[key]["numel"] += 1
-            metrics[key]["metric"] = (
-                metrics[key]["total"] / metrics[key]["numel"]
-            )
+            metrics[key]['total'] += stat
+            metrics[key]['numel'] += 1
+            metrics[key]['metric'] = metrics[key]['total'] / metrics[key]['numel']
         elif torch.is_tensor(stat):
             raise NotImplementedError
 
@@ -134,69 +131,69 @@ class Evaluator:
 
 
 def energy_mae(prediction, target):
-    return absolute_error(prediction["energy"], target["energy"])
+    return absolute_error(prediction['energy'], target['energy'])
 
 
 def energy_mse(prediction, target):
-    return squared_error(prediction["energy"], target["energy"])
+    return squared_error(prediction['energy'], target['energy'])
 
 
 def energy_nll(prediction, target, lamb):
-    return evidential_error(prediction, target["energy"], lamb)
+    return evidential_error(prediction, target['energy'], lamb)
 
 
 def forcesx_mae(prediction, target):
-    return absolute_error(prediction["forces"][:, 0], target["forces"][:, 0])
+    return absolute_error(prediction['forces'][:, 0], target['forces'][:, 0])
 
 
 def forcesx_mse(prediction, target):
-    return squared_error(prediction["forces"][:, 0], target["forces"][:, 0])
+    return squared_error(prediction['forces'][:, 0], target['forces'][:, 0])
 
 
 def forcesy_mae(prediction, target):
-    return absolute_error(prediction["forces"][:, 1], target["forces"][:, 1])
+    return absolute_error(prediction['forces'][:, 1], target['forces'][:, 1])
 
 
 def forcesy_mse(prediction, target):
-    return squared_error(prediction["forces"][:, 1], target["forces"][:, 1])
+    return squared_error(prediction['forces'][:, 1], target['forces'][:, 1])
 
 
 def forcesz_mae(prediction, target):
-    return absolute_error(prediction["forces"][:, 2], target["forces"][:, 2])
+    return absolute_error(prediction['forces'][:, 2], target['forces'][:, 2])
 
 
 def forcesz_mse(prediction, target):
-    return squared_error(prediction["forces"][:, 2], target["forces"][:, 2])
+    return squared_error(prediction['forces'][:, 2], target['forces'][:, 2])
 
 
 def forces_mae(prediction, target):
-    return absolute_error(prediction["forces"], target["forces"])
+    return absolute_error(prediction['forces'], target['forces'])
 
 
 def forces_mse(prediction, target):
-    return squared_error(prediction["forces"], target["forces"])
+    return squared_error(prediction['forces'], target['forces'])
 
 
 def forces_cos(prediction, target):
-    return cosine_similarity(prediction["forces"], target["forces"])
+    return cosine_similarity(prediction['forces'], target['forces'])
 
 
 def forces_magnitude(prediction, target):
-    return magnitude_error(prediction["forces"], target["forces"], p=2)
+    return magnitude_error(prediction['forces'], target['forces'], p=2)
 
 
 def positions_mae(prediction, target):
-    return absolute_error(prediction["positions"], target["positions"])
+    return absolute_error(prediction['positions'], target['positions'])
 
 
 def positions_mse(prediction, target):
-    return squared_error(prediction["positions"], target["positions"])
+    return squared_error(prediction['positions'], target['positions'])
 
 
 def energy_force_within_threshold(prediction, target):
     # Note that this natoms should be the count of free atoms we evaluate over.
-    assert target["natoms"].sum() == prediction["forces"].size(0)
-    assert target["natoms"].size(0) == prediction["energy"].size(0)
+    assert target['natoms'].sum() == prediction['forces'].size(0)
+    assert target['natoms'].size(0) == prediction['energy'].size(0)
 
     # compute absolute error on per-atom forces and energy per system.
     # then count the no. of systems where max force error is < 0.03 and max
@@ -204,24 +201,24 @@ def energy_force_within_threshold(prediction, target):
     f_thresh = 0.03
     e_thresh = 0.02
 
-    success, total = 0.0, target["natoms"].size(0)
+    success, total = 0.0, target['natoms'].size(0)
 
-    error_forces = torch.abs(target["forces"] - prediction["forces"])
-    error_energy = torch.abs(target["energy"] - prediction["energy"])
+    error_forces = torch.abs(target['forces'] - prediction['forces'])
+    error_energy = torch.abs(target['energy'] - prediction['energy'])
 
     start_idx = 0
-    for i, n in enumerate(target["natoms"]):
+    for i, n in enumerate(target['natoms']):
         if (
             error_energy[i] < e_thresh
-            and error_forces[start_idx: start_idx + n].max() < f_thresh
+            and error_forces[start_idx : start_idx + n].max() < f_thresh
         ):
             success += 1
         start_idx += n
 
     return {
-        "metric": success / total,
-        "total": success,
-        "numel": total,
+        'metric': success / total,
+        'total': success,
+        'numel': total,
     }
 
 
@@ -229,23 +226,21 @@ def energy_within_threshold(prediction, target):
     # compute absolute error on energy per system.
     # then count the no. of systems where max energy error is < 0.02.
     e_thresh = 0.02
-    error_energy = torch.abs(target["energy"] - prediction["energy"])
+    error_energy = torch.abs(target['energy'] - prediction['energy'])
 
     success = (error_energy < e_thresh).sum().item()
-    total = target["energy"].size(0)
+    total = target['energy'].size(0)
 
     return {
-        "metric": success / total,
-        "total": success,
-        "numel": total,
+        'metric': success / total,
+        'total': success,
+        'numel': total,
     }
 
 
 def average_distance_within_threshold(prediction, target):
-    pred_pos = torch.split(
-        prediction["positions"], prediction["natoms"].tolist()
-    )
-    target_pos = torch.split(target["positions"], target["natoms"].tolist())
+    pred_pos = torch.split(prediction['positions'], prediction['natoms'].tolist())
+    target_pos = torch.split(target['positions'], target['natoms'].tolist())
 
     mean_distance = []
     for idx, ml_pos in enumerate(pred_pos):
@@ -255,8 +250,8 @@ def average_distance_within_threshold(prediction, target):
                     min_diff(
                         ml_pos.detach().cpu().numpy(),
                         target_pos[idx].detach().cpu().numpy(),
-                        target["cell"][idx].detach().cpu().numpy(),
-                        target["pbc"].tolist(),
+                        target['cell'][idx].detach().cpu().numpy(),
+                        target['pbc'].tolist(),
                     ),
                     axis=1,
                 )
@@ -270,7 +265,7 @@ def average_distance_within_threshold(prediction, target):
 
     total = len(mean_distance) * len(intv)
 
-    return {"metric": success / total, "total": success, "numel": total}
+    return {'metric': success / total, 'total': success, 'numel': total}
 
 
 def min_diff(pred_pos, dft_pos, cell, pbc):
@@ -291,65 +286,70 @@ def min_diff(pred_pos, dft_pos, cell, pbc):
 def cosine_similarity(prediction, target):
     error = torch.cosine_similarity(prediction, target)
     return {
-        "metric": torch.mean(error).item(),
-        "total": torch.sum(error).item(),
-        "numel": error.numel(),
+        'metric': torch.mean(error).item(),
+        'total': torch.sum(error).item(),
+        'numel': error.numel(),
     }
 
 
 def absolute_error(prediction, target):
     error = torch.abs(target - prediction)
     return {
-        "metric": torch.mean(error).item(),
-        "total": torch.sum(error).item(),
-        "numel": prediction.numel(),
+        'metric': torch.mean(error).item(),
+        'total': torch.sum(error).item(),
+        'numel': prediction.numel(),
     }
 
 
 def squared_error(prediction, target):
     error = (target - prediction) ** 2
     return {
-        "metric": torch.mean(error).item(),
-        "total": torch.sum(error).item(),
-        "numel": prediction.numel(),
+        'metric': torch.mean(error).item(),
+        'total': torch.sum(error).item(),
+        'numel': prediction.numel(),
     }
 
 
 def magnitude_error(prediction, target, p=2):
     assert prediction.shape[1] > 1
-    error = torch.abs(
-        torch.norm(prediction, p=p, dim=-1) - torch.norm(target, p=p, dim=-1)
-    )
+    error = torch.abs(torch.norm(prediction, p=p, dim=-1) - torch.norm(target, p=p, dim=-1))
     return {
-        "metric": torch.mean(error).item(),
-        "total": torch.sum(error).item(),
-        "numel": error.numel(),
+        'metric': torch.mean(error).item(),
+        'total': torch.sum(error).item(),
+        'numel': error.numel(),
     }
 
 
 def evidential_error(prediction, target, lamb=0.0):
-    gamma, v, alpha, beta = prediction["energy"], prediction["v"], prediction["alpha"], prediction["beta"]
+    gamma, v, alpha, beta = (
+        prediction['energy'],
+        prediction['v'],
+        prediction['alpha'],
+        prediction['beta'],
+    )
 
-    twoBlambda = 2*beta*(1 + v)
+    twoBlambda = 2 * beta * (1 + v)
 
-    nll = 0.5*torch.log(np.pi/v)  \
-        - alpha*torch.log(twoBlambda)  \
-        + (alpha+0.5) * torch.log(v*(target-gamma)**2 + twoBlambda)  \
-        + torch.lgamma(alpha)  \
-        - torch.lgamma(alpha+0.5)
+    nll = (
+        0.5 * torch.log(np.pi / v)
+        - alpha * torch.log(twoBlambda)
+        + (alpha + 0.5) * torch.log(v * (target - gamma) ** 2 + twoBlambda)
+        + torch.lgamma(alpha)
+        - torch.lgamma(alpha + 0.5)
+    )
 
     # Get the predictive error
     error = torch.abs(target - gamma)
 
-    evidence = 2*v+(alpha)
+    evidence = 2 * v + (alpha)
     # Regularization term
-    reg = error*evidence
+    reg = error * evidence
 
     # Final evidential error
-    evidentialError = nll + (lamb*reg)
+    evidentialError = nll + (lamb * reg)
 
     return {
-        "metric": torch.mean(evidentialError).item(),
-        "total": torch.sum(evidentialError).item(),
-        "numel": evidentialError.numel(),
+        'metric': torch.mean(evidentialError).item(),
+        'total': torch.sum(evidentialError).item(),
+        'numel': evidentialError.numel(),
     }

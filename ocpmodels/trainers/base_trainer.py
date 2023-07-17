@@ -38,15 +38,13 @@ from ocpmodels.common.utils import (
     warmup_lr_lambda,
 )
 from ocpmodels.modules.evaluator import Evaluator
-from ocpmodels.modules.exponential_moving_average import (
-    ExponentialMovingAverage,
-)
+from ocpmodels.modules.exponential_moving_average import ExponentialMovingAverage
 from ocpmodels.modules.loss import AtomwiseL2Loss, DDPLoss, L2MAELoss, EvidentialLoss
 from ocpmodels.modules.normalizer import Normalizer
 from ocpmodels.modules.scheduler import LRScheduler
 
 
-@registry.register_trainer("base")
+@registry.register_trainer('base')
 class BaseTrainer(ABC):
     def __init__(
         self,
@@ -62,14 +60,14 @@ class BaseTrainer(ABC):
         is_hpo=False,
         print_every=100,
         seed=None,
-        logger="tensorboard",
+        logger='tensorboard',
         local_rank=0,
         amp=False,
         cpu=False,
         # Use evidential learning
         use_evidence=False,
         lamb=0.0,
-        name="base_trainer",
+        name='base_trainer',
         slurm={},
         noddp=False,
     ):
@@ -82,25 +80,23 @@ class BaseTrainer(ABC):
         self.lamb = lamb
 
         if torch.cuda.is_available() and not self.cpu:
-            self.device = torch.device(f"cuda:{local_rank}")
+            self.device = torch.device(f'cuda:{local_rank}')
         else:
-            self.device = torch.device("cpu")
+            self.device = torch.device('cpu')
             self.cpu = True  # handle case when `--cpu` isn't specified
             # but there are no gpu devices available
         if run_dir is None:
             run_dir = os.getcwd()
 
         if timestamp_id is None:
-            timestamp = torch.tensor(datetime.datetime.now().timestamp()).to(
-                self.device
-            )
+            timestamp = torch.tensor(datetime.datetime.now().timestamp()).to(self.device)
             # create directories from master rank only
             distutils.broadcast(timestamp, 0)
-            timestamp = datetime.datetime.fromtimestamp(
-                timestamp.int()
-            ).strftime("%Y-%m-%d-%H-%M-%S")
+            timestamp = datetime.datetime.fromtimestamp(timestamp.int()).strftime(
+                '%Y-%m-%d-%H-%M-%S'
+            )
             if identifier:
-                self.timestamp_id = f"{timestamp}-{identifier}"
+                self.timestamp_id = f'{timestamp}-{identifier}'
             else:
                 self.timestamp_id = timestamp
         else:
@@ -109,80 +105,68 @@ class BaseTrainer(ABC):
         try:
             commit_hash = (
                 subprocess.check_output(
-                    [
-                        "git",
-                        "-C",
-                        ocpmodels.__path__[0],
-                        "describe",
-                        "--always",
-                    ]
+                    ['git', '-C', ocpmodels.__path__[0], 'describe', '--always',]
                 )
                 .strip()
-                .decode("ascii")
+                .decode('ascii')
             )
         # catch instances where code is not being run from a git repo
         except Exception:
             commit_hash = None
 
-        logger_name = logger if isinstance(logger, str) else logger["name"]
+        logger_name = logger if isinstance(logger, str) else logger['name']
         self.config = {
-            "task": task,
-            "model": model.pop("name"),
-            "model_attributes": model,
-            "optim": optimizer,
-            "logger": logger,
-            "amp": amp,
-            "gpus": distutils.get_world_size() if not self.cpu else 0,
-            "cmd": {
-                "identifier": identifier,
-                "print_every": print_every,
-                "seed": seed,
-                "timestamp_id": self.timestamp_id,
-                "commit": commit_hash,
-                "checkpoint_dir": os.path.join(
-                    run_dir, "checkpoints", self.timestamp_id
-                ),
-                "results_dir": os.path.join(
-                    run_dir, "results", self.timestamp_id
-                ),
-                "logs_dir": os.path.join(
-                    run_dir, "logs", logger_name, self.timestamp_id
-                ),
+            'task': task,
+            'model': model.pop('name'),
+            'model_attributes': model,
+            'optim': optimizer,
+            'logger': logger,
+            'amp': amp,
+            'gpus': distutils.get_world_size() if not self.cpu else 0,
+            'cmd': {
+                'identifier': identifier,
+                'print_every': print_every,
+                'seed': seed,
+                'timestamp_id': self.timestamp_id,
+                'commit': commit_hash,
+                'checkpoint_dir': os.path.join(run_dir, 'checkpoints', self.timestamp_id),
+                'results_dir': os.path.join(run_dir, 'results', self.timestamp_id),
+                'logs_dir': os.path.join(run_dir, 'logs', logger_name, self.timestamp_id),
             },
-            "slurm": slurm,
-            "noddp": noddp,
+            'slurm': slurm,
+            'noddp': noddp,
         }
         # AMP Scaler
         self.scaler = torch.cuda.amp.GradScaler() if amp else None
 
-        if "SLURM_JOB_ID" in os.environ and "folder" in self.config["slurm"]:
-            self.config["slurm"]["job_id"] = os.environ["SLURM_JOB_ID"]
-            self.config["slurm"]["folder"] = self.config["slurm"][
-                "folder"
-            ].replace("%j", self.config["slurm"]["job_id"])
+        if 'SLURM_JOB_ID' in os.environ and 'folder' in self.config['slurm']:
+            self.config['slurm']['job_id'] = os.environ['SLURM_JOB_ID']
+            self.config['slurm']['folder'] = self.config['slurm']['folder'].replace(
+                '%j', self.config['slurm']['job_id']
+            )
         if isinstance(dataset, list):
             if len(dataset) > 0:
-                self.config["dataset"] = dataset[0]
+                self.config['dataset'] = dataset[0]
             if len(dataset) > 1:
-                self.config["val_dataset"] = dataset[1]
+                self.config['val_dataset'] = dataset[1]
             if len(dataset) > 2:
-                self.config["test_dataset"] = dataset[2]
+                self.config['test_dataset'] = dataset[2]
         elif isinstance(dataset, dict):
-            self.config["dataset"] = dataset.get("train", None)
-            self.config["val_dataset"] = dataset.get("val", None)
-            self.config["test_dataset"] = dataset.get("test", None)
+            self.config['dataset'] = dataset.get('train', None)
+            self.config['val_dataset'] = dataset.get('val', None)
+            self.config['test_dataset'] = dataset.get('test', None)
         else:
-            self.config["dataset"] = dataset
+            self.config['dataset'] = dataset
 
         self.normalizer = normalizer
         # This supports the legacy way of providing norm parameters in dataset
-        if self.config.get("dataset", None) is not None and normalizer is None:
-            self.normalizer = self.config["dataset"]
+        if self.config.get('dataset', None) is not None and normalizer is None:
+            self.normalizer = self.config['dataset']
 
         if not is_debug and distutils.is_master() and not is_hpo:
-            os.makedirs(self.config["cmd"]["checkpoint_dir"], exist_ok=True)
-            os.makedirs(self.config["cmd"]["results_dir"], exist_ok=True)
-            os.makedirs(self.config["cmd"]["logs_dir"], exist_ok=True)
+            os.makedirs(self.config['cmd']['checkpoint_dir'], exist_ok=True)
+            os.makedirs(self.config['cmd']['results_dir'], exist_ok=True)
+            os.makedirs(self.config['cmd']['logs_dir'], exist_ok=True)
 
         self.is_debug = is_debug
         self.is_hpo = is_hpo
@@ -195,15 +179,13 @@ class BaseTrainer(ABC):
 
             # sets the hpo checkpoint frequency
             # default is no checkpointing
-            self.hpo_checkpoint_every = self.config["optim"].get(
-                "checkpoint_every", -1
-            )
+            self.hpo_checkpoint_every = self.config['optim'].get('checkpoint_every', -1)
 
         if distutils.is_master():
             print(yaml.dump(self.config, default_flow_style=False))
         self.load()
 
-        self.lamb = self.config["model_attributes"].get("lamb", 0.0)
+        self.lamb = self.config['model_attributes'].get('lamb', 0.0)
         self.evaluator = Evaluator(task=name, lamb=self.lamb)
 
     def load(self):
@@ -220,19 +202,17 @@ class BaseTrainer(ABC):
     def export(self):
         # File directories for logs and results are already automatically made by the base_trainer.py class
         # Take advantage of this by saving model state to results_dir folder.
-        exportModelFileName = (
-            self.config["model"] + "_" + self.config["cmd"]["timestamp"]
-        )
+        exportModelFileName = self.config['model'] + '_' + self.config['cmd']['timestamp']
         exportModelFilePath = os.path.join(
-            self.config["cmd"]["results_dir"], exportModelFileName
+            self.config['cmd']['results_dir'], exportModelFileName
         )
         exportOptimizerFileName = (
-            self.config["optim"].get("optimizer", "AdamW")
-            + "_"
-            + self.config["cmd"]["timestamp"]
+            self.config['optim'].get('optimizer', 'AdamW')
+            + '_'
+            + self.config['cmd']['timestamp']
         )
         exportOptimizerFilePath = os.path.join(
-            self.config["cmd"]["results_dir"], exportOptimizerFileName
+            self.config['cmd']['results_dir'], exportOptimizerFileName
         )
 
         torch.save(self.model.module.state_dict(), exportModelFilePath)
@@ -240,7 +220,7 @@ class BaseTrainer(ABC):
 
     def load_seed_from_config(self):
         # https://pytorch.org/docs/stable/notes/randomness.html
-        seed = self.config["cmd"]["seed"]
+        seed = self.config['cmd']['seed']
         if seed is None:
             return
 
@@ -254,22 +234,20 @@ class BaseTrainer(ABC):
     def load_logger(self):
         self.logger = None
         if not self.is_debug and distutils.is_master() and not self.is_hpo:
-            assert (
-                self.config["logger"] is not None
-            ), "Specify logger in config"
+            assert self.config['logger'] is not None, 'Specify logger in config'
 
-            logger = self.config["logger"]
-            logger_name = logger if isinstance(logger, str) else logger["name"]
-            assert logger_name, "Specify logger name"
+            logger = self.config['logger']
+            logger_name = logger if isinstance(logger, str) else logger['name']
+            assert logger_name, 'Specify logger name'
 
             self.logger = registry.get_logger_class(logger_name)(self.config)
 
     def get_sampler(self, dataset, batch_size, shuffle):
-        if "load_balancing" in self.config["optim"]:
-            balancing_mode = self.config["optim"]["load_balancing"]
+        if 'load_balancing' in self.config['optim']:
+            balancing_mode = self.config['optim']['load_balancing']
             force_balancing = True
         else:
-            balancing_mode = "atoms"
+            balancing_mode = 'atoms'
             force_balancing = False
 
         sampler = BalancedBatchSampler(
@@ -288,7 +266,7 @@ class BaseTrainer(ABC):
         loader = DataLoader(
             dataset,
             collate_fn=self.parallel_collater,
-            num_workers=self.config["optim"]["num_workers"],
+            num_workers=self.config['optim']['num_workers'],
             pin_memory=True,
             batch_sampler=sampler,
         )
@@ -296,70 +274,58 @@ class BaseTrainer(ABC):
 
     def load_datasets(self):
         self.parallel_collater = ParallelCollater(
-            0 if self.cpu else 1,
-            self.config["model_attributes"].get("otf_graph", False),
+            0 if self.cpu else 1, self.config['model_attributes'].get('otf_graph', False),
         )
 
         self.train_loader = self.val_loader = self.test_loader = None
 
-        if self.config.get("dataset", None):
-            self.train_dataset = registry.get_dataset_class(
-                self.config["task"]["dataset"]
-            )(self.config["dataset"])
+        if self.config.get('dataset', None):
+            self.train_dataset = registry.get_dataset_class(self.config['task']['dataset'])(
+                self.config['dataset']
+            )
             self.train_sampler = self.get_sampler(
-                self.train_dataset,
-                self.config["optim"]["batch_size"],
-                shuffle=True,
+                self.train_dataset, self.config['optim']['batch_size'], shuffle=True,
             )
-            self.train_loader = self.get_dataloader(
-                self.train_dataset,
-                self.train_sampler,
-            )
+            self.train_loader = self.get_dataloader(self.train_dataset, self.train_sampler,)
 
-            if self.config.get("val_dataset", None):
-                self.val_dataset = registry.get_dataset_class(
-                    self.config["task"]["dataset"]
-                )(self.config["val_dataset"])
+            if self.config.get('val_dataset', None):
+                self.val_dataset = registry.get_dataset_class(self.config['task']['dataset'])(
+                    self.config['val_dataset']
+                )
                 self.val_sampler = self.get_sampler(
                     self.val_dataset,
-                    self.config["optim"].get(
-                        "eval_batch_size", self.config["optim"]["batch_size"]
+                    self.config['optim'].get(
+                        'eval_batch_size', self.config['optim']['batch_size']
                     ),
                     shuffle=False,
                 )
-                self.val_loader = self.get_dataloader(
-                    self.val_dataset,
-                    self.val_sampler,
-                )
+                self.val_loader = self.get_dataloader(self.val_dataset, self.val_sampler,)
 
-            if self.config.get("test_dataset", None):
-                self.test_dataset = registry.get_dataset_class(
-                    self.config["task"]["dataset"]
-                )(self.config["test_dataset"])
+            if self.config.get('test_dataset', None):
+                self.test_dataset = registry.get_dataset_class(self.config['task']['dataset'])(
+                    self.config['test_dataset']
+                )
                 self.test_sampler = self.get_sampler(
                     self.test_dataset,
-                    self.config["optim"].get(
-                        "eval_batch_size", self.config["optim"]["batch_size"]
+                    self.config['optim'].get(
+                        'eval_batch_size', self.config['optim']['batch_size']
                     ),
                     shuffle=False,
                 )
-                self.test_loader = self.get_dataloader(
-                    self.test_dataset,
-                    self.test_sampler,
-                )
+                self.test_loader = self.get_dataloader(self.test_dataset, self.test_sampler,)
 
         # Normalizer for the dataset.
         # Compute mean, std of training set labels.
         self.normalizers = {}
-        if self.normalizer.get("normalize_labels", False):
-            if "target_mean" in self.normalizer:
-                self.normalizers["target"] = Normalizer(
-                    mean=self.normalizer["target_mean"],
-                    std=self.normalizer["target_std"],
+        if self.normalizer.get('normalize_labels', False):
+            if 'target_mean' in self.normalizer:
+                self.normalizers['target'] = Normalizer(
+                    mean=self.normalizer['target_mean'],
+                    std=self.normalizer['target_std'],
                     device=self.device,
                 )
             else:
-                self.normalizers["target"] = Normalizer(
+                self.normalizers['target'] = Normalizer(
                     tensor=self.train_loader.dataset.data.y[
                         self.train_loader.dataset.__indices__
                     ],
@@ -376,200 +342,174 @@ class BaseTrainer(ABC):
             logging.info(f"Loading model: {self.config['model']}")
 
         # Check to see if evidential regression is enabled or not.
-        self.use_evidence = self.config["model_attributes"].get(
-            "use_evidence", False)
-        self.lamb = self.config["model_attributes"].get("lamb", 0.0)
+        self.use_evidence = self.config['model_attributes'].get('use_evidence', False)
+        self.lamb = self.config['model_attributes'].get('lamb', 0.0)
 
         # If using deep evidential regression, assert that the regularization hyperparameter is properly specified.
         if self.use_evidence:
-            assert (self.lamb >= 0.0 and self.lamb <= 1.0)
+            assert self.lamb >= 0.0 and self.lamb <= 1.0
 
         # TODO: depreicated, remove.
         bond_feat_dim = None
-        bond_feat_dim = self.config["model_attributes"].get(
-            "num_gaussians", 50
-        )
+        bond_feat_dim = self.config['model_attributes'].get('num_gaussians', 50)
 
         loader = self.train_loader or self.val_loader or self.test_loader
-        self.model = registry.get_model_class(self.config["model"])(
+        self.model = registry.get_model_class(self.config['model'])(
             loader.dataset[0].x.shape[-1]
-            if loader
-            and hasattr(loader.dataset[0], "x")
-            and loader.dataset[0].x is not None
+            if loader and hasattr(loader.dataset[0], 'x') and loader.dataset[0].x is not None
             else None,
             bond_feat_dim,
             self.num_targets,
-            **self.config["model_attributes"],
+            **self.config['model_attributes'],
         ).to(self.device)
 
         if distutils.is_master():
             logging.info(
-                f"Loaded {self.model.__class__.__name__} with "
-                f"{self.model.num_params} parameters."
+                f'Loaded {self.model.__class__.__name__} with '
+                f'{self.model.num_params} parameters.'
             )
 
         if self.logger is not None:
             self.logger.watch(self.model)
 
         self.model = OCPDataParallel(
-            self.model,
-            output_device=self.device,
-            num_gpus=1 if not self.cpu else 0,
+            self.model, output_device=self.device, num_gpus=1 if not self.cpu else 0,
         )
-        if distutils.initialized() and not self.config["noddp"]:
-            self.model = DistributedDataParallel(
-                self.model, device_ids=[self.device]
-            )
+        if distutils.initialized() and not self.config['noddp']:
+            self.model = DistributedDataParallel(self.model, device_ids=[self.device])
 
     def load_checkpoint(self, checkpoint_path):
         if not os.path.isfile(checkpoint_path):
-            raise FileNotFoundError(
-                errno.ENOENT, "Checkpoint file not found", checkpoint_path
-            )
+            raise FileNotFoundError(errno.ENOENT, 'Checkpoint file not found', checkpoint_path)
 
-        logging.info(f"Loading checkpoint from: {checkpoint_path}")
-        map_location = torch.device("cpu") if self.cpu else self.device
+        logging.info(f'Loading checkpoint from: {checkpoint_path}')
+        map_location = torch.device('cpu') if self.cpu else self.device
         checkpoint = torch.load(checkpoint_path, map_location=map_location)
-        self.epoch = checkpoint.get("epoch", 0)
-        self.step = checkpoint.get("step", 0)
+        self.epoch = checkpoint.get('epoch', 0)
+        self.step = checkpoint.get('step', 0)
 
         # Load model, optimizer, normalizer state dict.
         # if trained with ddp and want to load in non-ddp, modify keys from
         # module.module.. -> module..
-        first_key = next(iter(checkpoint["state_dict"]))
-        if (
-            not distutils.initialized() or self.config["noddp"]
-        ) and first_key.split(".")[1] == "module":
+        first_key = next(iter(checkpoint['state_dict']))
+        if (not distutils.initialized() or self.config['noddp']) and first_key.split('.')[
+            1
+        ] == 'module':
             # No need for OrderedDict since dictionaries are technically ordered
             # since Python 3.6 and officially ordered since Python 3.7
-            new_dict = {k[7:]: v for k, v in checkpoint["state_dict"].items()}
+            new_dict = {k[7:]: v for k, v in checkpoint['state_dict'].items()}
             self.model.load_state_dict(new_dict)
-        elif distutils.initialized() and first_key.split(".")[1] != "module":
-            new_dict = {
-                f"module.{k}": v for k, v in checkpoint["state_dict"].items()
-            }
+        elif distutils.initialized() and first_key.split('.')[1] != 'module':
+            new_dict = {f'module.{k}': v for k, v in checkpoint['state_dict'].items()}
             self.model.load_state_dict(new_dict)
         else:
-            self.model.load_state_dict(checkpoint["state_dict"])
+            self.model.load_state_dict(checkpoint['state_dict'])
 
-        if "optimizer" in checkpoint:
-            self.optimizer.load_state_dict(checkpoint["optimizer"])
-        if "scheduler" in checkpoint and checkpoint["scheduler"] is not None:
-            self.scheduler.scheduler.load_state_dict(checkpoint["scheduler"])
-        if "ema" in checkpoint and checkpoint["ema"] is not None:
-            self.ema.load_state_dict(checkpoint["ema"])
+        if 'optimizer' in checkpoint:
+            self.optimizer.load_state_dict(checkpoint['optimizer'])
+        if 'scheduler' in checkpoint and checkpoint['scheduler'] is not None:
+            self.scheduler.scheduler.load_state_dict(checkpoint['scheduler'])
+        if 'ema' in checkpoint and checkpoint['ema'] is not None:
+            self.ema.load_state_dict(checkpoint['ema'])
         else:
             self.ema = None
 
-        for key in checkpoint["normalizers"]:
+        for key in checkpoint['normalizers']:
             if key in self.normalizers:
-                self.normalizers[key].load_state_dict(
-                    checkpoint["normalizers"][key]
-                )
-            if self.scaler and checkpoint["amp"]:
-                self.scaler.load_state_dict(checkpoint["amp"])
+                self.normalizers[key].load_state_dict(checkpoint['normalizers'][key])
+            if self.scaler and checkpoint['amp']:
+                self.scaler.load_state_dict(checkpoint['amp'])
 
     def load_loss(self):
         self.loss_fn = {}
-        self.loss_fn["energy"] = self.config["optim"].get("loss_energy", "mae")
-        self.loss_fn["force"] = self.config["optim"].get("loss_force", "mae")
+        self.loss_fn['energy'] = self.config['optim'].get('loss_energy', 'mae')
+        self.loss_fn['force'] = self.config['optim'].get('loss_force', 'mae')
         for loss, loss_name in self.loss_fn.items():
-            if loss_name in ["l1", "mae"]:
+            if loss_name in ['l1', 'mae']:
                 self.loss_fn[loss] = nn.L1Loss()
-            elif loss_name == "mse":
+            elif loss_name == 'mse':
                 self.loss_fn[loss] = nn.MSELoss()
-            elif loss_name == "l2mae":
+            elif loss_name == 'l2mae':
                 self.loss_fn[loss] = L2MAELoss()
-            elif loss_name == "atomwisel2":
+            elif loss_name == 'atomwisel2':
                 self.loss_fn[loss] = AtomwiseL2Loss()
             # For using deep evidential regression,
-            elif loss_name == "energy_nll":
+            elif loss_name == 'energy_nll':
                 self.loss_fn[loss] = EvidentialLoss(lamb=self.lamb)
             else:
-                raise NotImplementedError(
-                    f"Unknown loss function name: {loss_name}"
-                )
+                raise NotImplementedError(f'Unknown loss function name: {loss_name}')
             self.loss_fn[loss] = DDPLoss(self.loss_fn[loss])
 
     def load_optimizer(self):
-        optimizer = self.config["optim"].get("optimizer", "AdamW")
+        optimizer = self.config['optim'].get('optimizer', 'AdamW')
         optimizer = getattr(optim, optimizer)
 
-        if self.config["optim"].get("weight_decay", 0) > 0:
+        if self.config['optim'].get('weight_decay', 0) > 0:
 
             # Do not regularize bias etc.
             params_decay = []
             params_no_decay = []
             for name, param in self.model.named_parameters():
                 if param.requires_grad:
-                    if "embedding" in name:
+                    if 'embedding' in name:
                         params_no_decay += [param]
-                    elif "frequencies" in name:
+                    elif 'frequencies' in name:
                         params_no_decay += [param]
-                    elif "bias" in name:
+                    elif 'bias' in name:
                         params_no_decay += [param]
                     else:
                         params_decay += [param]
 
             self.optimizer = optimizer(
                 [
-                    {"params": params_no_decay, "weight_decay": 0},
+                    {'params': params_no_decay, 'weight_decay': 0},
                     {
-                        "params": params_decay,
-                        "weight_decay": self.config["optim"]["weight_decay"],
+                        'params': params_decay,
+                        'weight_decay': self.config['optim']['weight_decay'],
                     },
                 ],
-                lr=self.config["optim"]["lr_initial"],
-                **self.config["optim"].get("optimizer_params", {}),
+                lr=self.config['optim']['lr_initial'],
+                **self.config['optim'].get('optimizer_params', {}),
             )
         else:
             self.optimizer = optimizer(
                 params=self.model.parameters(),
-                lr=self.config["optim"]["lr_initial"],
-                **self.config["optim"].get("optimizer_params", {}),
+                lr=self.config['optim']['lr_initial'],
+                **self.config['optim'].get('optimizer_params', {}),
             )
 
     def load_extras(self):
-        self.scheduler = LRScheduler(self.optimizer, self.config["optim"])
-        self.clip_grad_norm = self.config["optim"].get("clip_grad_norm")
-        self.ema_decay = self.config["optim"].get("ema_decay")
+        self.scheduler = LRScheduler(self.optimizer, self.config['optim'])
+        self.clip_grad_norm = self.config['optim'].get('clip_grad_norm')
+        self.ema_decay = self.config['optim'].get('ema_decay')
         if self.ema_decay:
-            self.ema = ExponentialMovingAverage(
-                self.model.parameters(),
-                self.ema_decay,
-            )
+            self.ema = ExponentialMovingAverage(self.model.parameters(), self.ema_decay,)
         else:
             self.ema = None
 
     def save(
-        self,
-        metrics=None,
-        checkpoint_file="checkpoint.pt",
-        training_state=True,
+        self, metrics=None, checkpoint_file='checkpoint.pt', training_state=True,
     ):
         if not self.is_debug and distutils.is_master():
             if training_state:
                 save_checkpoint(
                     {
-                        "epoch": self.epoch,
-                        "step": self.step,
-                        "state_dict": self.model.state_dict(),
-                        "optimizer": self.optimizer.state_dict(),
-                        "scheduler": self.scheduler.scheduler.state_dict()
-                        if self.scheduler.scheduler_type != "Null"
+                        'epoch': self.epoch,
+                        'step': self.step,
+                        'state_dict': self.model.state_dict(),
+                        'optimizer': self.optimizer.state_dict(),
+                        'scheduler': self.scheduler.scheduler.state_dict()
+                        if self.scheduler.scheduler_type != 'Null'
                         else None,
-                        "normalizers": {
-                            key: value.state_dict()
-                            for key, value in self.normalizers.items()
+                        'normalizers': {
+                            key: value.state_dict() for key, value in self.normalizers.items()
                         },
-                        "config": self.config,
-                        "val_metrics": metrics,
-                        "ema": self.ema.state_dict() if self.ema else None,
-                        "amp": self.scaler.state_dict()
-                        if self.scaler
-                        else None,
+                        'config': self.config,
+                        'val_metrics': metrics,
+                        'ema': self.ema.state_dict() if self.ema else None,
+                        'amp': self.scaler.state_dict() if self.scaler else None,
                     },
-                    checkpoint_dir=self.config["cmd"]["checkpoint_dir"],
+                    checkpoint_dir=self.config['cmd']['checkpoint_dir'],
                     checkpoint_file=checkpoint_file,
                 )
             else:
@@ -578,18 +518,15 @@ class BaseTrainer(ABC):
                     self.ema.copy_to()
                 save_checkpoint(
                     {
-                        "state_dict": self.model.state_dict(),
-                        "normalizers": {
-                            key: value.state_dict()
-                            for key, value in self.normalizers.items()
+                        'state_dict': self.model.state_dict(),
+                        'normalizers': {
+                            key: value.state_dict() for key, value in self.normalizers.items()
                         },
-                        "config": self.config,
-                        "val_metrics": metrics,
-                        "amp": self.scaler.state_dict()
-                        if self.scaler
-                        else None,
+                        'config': self.config,
+                        'val_metrics': metrics,
+                        'amp': self.scaler.state_dict() if self.scaler else None,
                     },
-                    checkpoint_dir=self.config["cmd"]["checkpoint_dir"],
+                    checkpoint_dir=self.config['cmd']['checkpoint_dir'],
                     checkpoint_file=checkpoint_file,
                 )
                 if self.ema:
@@ -600,35 +537,26 @@ class BaseTrainer(ABC):
         # checkpointing frequency can be adjusted by setting checkpoint_every in steps
         # to checkpoint every time results are communicated to Ray Tune set checkpoint_every=1
         if checkpoint_every != -1 and step % checkpoint_every == 0:
-            with tune.checkpoint_dir(  # noqa: F821
-                step=step
-            ) as checkpoint_dir:
-                path = os.path.join(checkpoint_dir, "checkpoint")
+            with tune.checkpoint_dir(step=step) as checkpoint_dir:  # noqa: F821
+                path = os.path.join(checkpoint_dir, 'checkpoint')
                 torch.save(self.save_state(epoch, step, metrics), path)
 
-    def hpo_update(
-        self, epoch, step, train_metrics, val_metrics, test_metrics=None
-    ):
+    def hpo_update(self, epoch, step, train_metrics, val_metrics, test_metrics=None):
         progress = {
-            "steps": step,
-            "epochs": epoch,
-            "act_lr": self.optimizer.param_groups[0]["lr"],
+            'steps': step,
+            'epochs': epoch,
+            'act_lr': self.optimizer.param_groups[0]['lr'],
         }
         # checkpointing must occur before reporter
         # default is no checkpointing
         self.save_hpo(
-            epoch,
-            step,
-            val_metrics,
-            self.hpo_checkpoint_every,
+            epoch, step, val_metrics, self.hpo_checkpoint_every,
         )
         # report metrics to tune
         tune_reporter(  # noqa: F821
             iters=progress,
-            train_metrics={
-                k: train_metrics[k]["metric"] for k in self.metrics
-            },
-            val_metrics={k: val_metrics[k]["metric"] for k in val_metrics},
+            train_metrics={k: train_metrics[k]['metric'] for k in self.metrics},
+            val_metrics={k: val_metrics[k]['metric'] for k in val_metrics},
             test_metrics=test_metrics,
         )
 
@@ -637,9 +565,9 @@ class BaseTrainer(ABC):
         """Derived classes should implement this function."""
 
     @torch.no_grad()
-    def validate(self, split="val", disable_tqdm=False):
+    def validate(self, split='val', disable_tqdm=False):
         if distutils.is_master():
-            logging.info(f"Evaluating on {split}.")
+            logging.info(f'Evaluating on {split}.')
         if self.is_hpo:
             disable_tqdm = True
 
@@ -651,13 +579,13 @@ class BaseTrainer(ABC):
         evaluator, metrics = Evaluator(task=self.name), {}
         rank = distutils.get_rank()
 
-        loader = self.val_loader if split == "val" else self.test_loader
+        loader = self.val_loader if split == 'val' else self.test_loader
 
         for i, batch in tqdm(
             enumerate(loader),
             total=len(loader),
             position=rank,
-            desc="device {}".format(rank),
+            desc='device {}'.format(rank),
             disable=disable_tqdm,
         ):
             # Forward.
@@ -667,35 +595,33 @@ class BaseTrainer(ABC):
 
             # Compute metrics.
             metrics = self._compute_metrics(out, batch, evaluator, metrics)
-            metrics = evaluator.update("loss", loss.item(), metrics)
+            metrics = evaluator.update('loss', loss.item(), metrics)
 
         aggregated_metrics = {}
         for k in metrics:
             aggregated_metrics[k] = {
-                "total": distutils.all_reduce(
-                    metrics[k]["total"], average=False, device=self.device
+                'total': distutils.all_reduce(
+                    metrics[k]['total'], average=False, device=self.device
                 ),
-                "numel": distutils.all_reduce(
-                    metrics[k]["numel"], average=False, device=self.device
+                'numel': distutils.all_reduce(
+                    metrics[k]['numel'], average=False, device=self.device
                 ),
             }
-            aggregated_metrics[k]["metric"] = (
-                aggregated_metrics[k]["total"] / aggregated_metrics[k]["numel"]
+            aggregated_metrics[k]['metric'] = (
+                aggregated_metrics[k]['total'] / aggregated_metrics[k]['numel']
             )
         metrics = aggregated_metrics
 
-        log_dict = {k: metrics[k]["metric"] for k in metrics}
-        log_dict.update({"epoch": self.epoch})
+        log_dict = {k: metrics[k]['metric'] for k in metrics}
+        log_dict.update({'epoch': self.epoch})
         if distutils.is_master():
-            log_str = ["{}: {:.4f}".format(k, v) for k, v in log_dict.items()]
-            logging.info(", ".join(log_str))
+            log_str = ['{}: {:.4f}'.format(k, v) for k, v in log_dict.items()]
+            logging.info(', '.join(log_str))
 
         # Make plots.
         if self.logger is not None:
             self.logger.log(
-                log_dict,
-                step=self.step,
-                split=split,
+                log_dict, step=self.step, split=split,
             )
 
         if self.ema:
@@ -715,29 +641,26 @@ class BaseTrainer(ABC):
         self.optimizer.zero_grad()
         loss.backward()
         # Scale down the gradients of shared parameters
-        if hasattr(self.model.module, "shared_parameters"):
+        if hasattr(self.model.module, 'shared_parameters'):
             for p, factor in self.model.module.shared_parameters:
-                if hasattr(p, "grad") and p.grad is not None:
+                if hasattr(p, 'grad') and p.grad is not None:
                     p.grad.detach().div_(factor)
                 else:
-                    if not hasattr(self, "warned_shared_param_no_grad"):
+                    if not hasattr(self, 'warned_shared_param_no_grad'):
                         self.warned_shared_param_no_grad = True
                         logging.warning(
-                            "Some shared parameters do not have a gradient. "
-                            "Please check if all shared parameters are used "
-                            "and point to PyTorch parameters."
+                            'Some shared parameters do not have a gradient. '
+                            'Please check if all shared parameters are used '
+                            'and point to PyTorch parameters.'
                         )
         if self.clip_grad_norm:
             if self.scaler:
                 self.scaler.unscale_(self.optimizer)
             grad_norm = torch.nn.utils.clip_grad_norm_(
-                self.model.parameters(),
-                max_norm=self.clip_grad_norm,
+                self.model.parameters(), max_norm=self.clip_grad_norm,
             )
             if self.logger is not None:
-                self.logger.log(
-                    {"grad_norm": grad_norm}, step=self.step, split="train"
-                )
+                self.logger.log({'grad_norm': grad_norm}, step=self.step, split='train')
         if self.scaler:
             self.scaler.step(self.optimizer)
             self.scaler.update()
@@ -751,12 +674,12 @@ class BaseTrainer(ABC):
             return
 
         results_file_path = os.path.join(
-            self.config["cmd"]["results_dir"],
-            f"{self.name}_{results_file}_{distutils.get_rank()}.npz",
+            self.config['cmd']['results_dir'],
+            f'{self.name}_{results_file}_{distutils.get_rank()}.npz',
         )
         np.savez_compressed(
             results_file_path,
-            ids=predictions["id"],
+            ids=predictions['id'],
             **{key: predictions[key] for key in keys},
         )
 
@@ -764,36 +687,30 @@ class BaseTrainer(ABC):
         if distutils.is_master():
             gather_results = defaultdict(list)
             full_path = os.path.join(
-                self.config["cmd"]["results_dir"],
-                f"{self.name}_{results_file}.npz",
+                self.config['cmd']['results_dir'], f'{self.name}_{results_file}.npz',
             )
 
             for i in range(distutils.get_world_size()):
                 rank_path = os.path.join(
-                    self.config["cmd"]["results_dir"],
-                    f"{self.name}_{results_file}_{i}.npz",
+                    self.config['cmd']['results_dir'], f'{self.name}_{results_file}_{i}.npz',
                 )
                 rank_results = np.load(rank_path, allow_pickle=True)
-                gather_results["ids"].extend(rank_results["ids"])
+                gather_results['ids'].extend(rank_results['ids'])
                 for key in keys:
                     gather_results[key].extend(rank_results[key])
                 os.remove(rank_path)
 
             # Because of how distributed sampler works, some system ids
             # might be repeated to make no. of samples even across GPUs.
-            _, idx = np.unique(gather_results["ids"], return_index=True)
-            gather_results["ids"] = np.array(gather_results["ids"])[idx]
+            _, idx = np.unique(gather_results['ids'], return_index=True)
+            gather_results['ids'] = np.array(gather_results['ids'])[idx]
             for k in keys:
-                if k == "forces":
-                    gather_results[k] = np.concatenate(
-                        np.array(gather_results[k])[idx]
-                    )
-                elif k == "chunk_idx":
-                    gather_results[k] = np.cumsum(
-                        np.array(gather_results[k])[idx]
-                    )[:-1]
+                if k == 'forces':
+                    gather_results[k] = np.concatenate(np.array(gather_results[k])[idx])
+                elif k == 'chunk_idx':
+                    gather_results[k] = np.cumsum(np.array(gather_results[k])[idx])[:-1]
                 else:
                     gather_results[k] = np.array(gather_results[k])[idx]
 
-            logging.info(f"Writing results to {full_path}")
+            logging.info(f'Writing results to {full_path}')
             np.savez_compressed(full_path, **gather_results)

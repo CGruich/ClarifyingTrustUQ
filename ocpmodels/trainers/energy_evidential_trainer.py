@@ -20,7 +20,7 @@ from ocpmodels.modules.normalizer import Normalizer
 from ocpmodels.trainers.base_trainer import BaseTrainer
 
 
-@registry.register_trainer("energy_evidential")
+@registry.register_trainer('energy_evidential')
 class EnergyTrainer(BaseTrainer):
     """
     Trainer class for the Initial Structure to Relaxed Energy (IS2RE) task.
@@ -77,7 +77,7 @@ class EnergyTrainer(BaseTrainer):
         is_hpo=False,
         print_every=100,
         seed=None,
-        logger="tensorboard",
+        logger='tensorboard',
         local_rank=0,
         amp=False,
         cpu=False,
@@ -108,7 +108,7 @@ class EnergyTrainer(BaseTrainer):
             # Custom ML task called 'is2re_evidential'
             # This is just the is2re task, except the evidential loss is the primary metric for assessing predictions.
             # See evaluator.py for more details.
-            name="is2re_evidential",
+            name='is2re_evidential',
             # Use evidential deep learning
             use_evidence=use_evidence,
             # Evidential regression regularizer hyperparameter
@@ -123,17 +123,11 @@ class EnergyTrainer(BaseTrainer):
         self.num_targets = 1
 
     @torch.no_grad()
-    def predict(
-        self, loader, per_image=True, results_file=None, disable_tqdm=False
-    ):
+    def predict(self, loader, per_image=True, results_file=None, disable_tqdm=False):
         if distutils.is_master() and not disable_tqdm:
-            logging.info("Predicting on test.")
+            logging.info('Predicting on test.')
         assert isinstance(
-            loader,
-            (
-                torch.utils.data.dataloader.DataLoader,
-                torch_geometric.data.Batch,
-            ),
+            loader, (torch.utils.data.dataloader.DataLoader, torch_geometric.data.Batch,),
         )
         rank = distutils.get_rank()
 
@@ -146,11 +140,11 @@ class EnergyTrainer(BaseTrainer):
         # If dropout_on_inference = True, turn the dropout layers on to use dropout on prediction.
         # dropout_on_inference is defined in the model section of config.yml files. Otherwise it defaults to False.
         # For every layer in the PyTorch model
-        if self.config["model_attributes"].get("dropout_on_inference", False):
+        if self.config['model_attributes'].get('dropout_on_inference', False):
             for module in self.model.modules():
                 # Layers are custom classes. If the custom class has the name "Dropout",
-                if module.__class__.__name__.startswith("Dropout"):
-                    print("DROPOUT LAYER ENABLED IN PREDICTION")
+                if module.__class__.__name__.startswith('Dropout'):
+                    print('DROPOUT LAYER ENABLED IN PREDICTION')
                     # Set that layer to training mode.
                     # Note that dropout layers in PyTorch (nn.Dropout()) are only activated in training mode.
                     # Otherwise they are disabled in evaluation mode (model.eval())
@@ -161,21 +155,20 @@ class EnergyTrainer(BaseTrainer):
             self.ema.store()
             self.ema.copy_to()
 
-        if self.normalizers is not None and "target" in self.normalizers:
-            self.normalizers["target"].to(self.device)
+        if self.normalizers is not None and 'target' in self.normalizers:
+            self.normalizers['target'].to(self.device)
 
         # If using deep evidential regression:
         if self.use_evidence == True:
-            predictions = {"id": [], "energy": [],
-                           "v": [], "alpha": [], "beta": []}
+            predictions = {'id': [], 'energy': [], 'v': [], 'alpha': [], 'beta': []}
         else:
-            predictions = {"id": [], "energy": []}
+            predictions = {'id': [], 'energy': []}
 
         for i, batch in tqdm(
             enumerate(loader),
             total=len(loader),
             position=rank,
-            desc="device {}".format(rank),
+            desc='device {}'.format(rank),
             disable=disable_tqdm,
         ):
             with torch.cuda.amp.autocast(enabled=self.scaler is not None):
@@ -183,47 +176,38 @@ class EnergyTrainer(BaseTrainer):
 
             # If using deep evidential regression:
             if self.use_evidence == True:
-                if self.normalizers is not None and "target" in self.normalizers:
-                    out["energy"] = self.normalizers["target"].denorm(
-                        out["energy"]
-                    )
+                if self.normalizers is not None and 'target' in self.normalizers:
+                    out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
                 if per_image:
-                    predictions["id"].extend(
-                        [str(i) for i in batch[0].sid.tolist()]
-                    )
-                    predictions["energy"].extend(out["energy"].tolist())
-                    predictions["v"].extend(out["v"].tolist())
-                    predictions["alpha"].extend(out["alpha"].tolist())
-                    predictions["beta"].extend(out["beta"].tolist())
+                    predictions['id'].extend([str(i) for i in batch[0].sid.tolist()])
+                    predictions['energy'].extend(out['energy'].tolist())
+                    predictions['v'].extend(out['v'].tolist())
+                    predictions['alpha'].extend(out['alpha'].tolist())
+                    predictions['beta'].extend(out['beta'].tolist())
 
                 else:
-                    predictions["energy"] = out["energy"].detach()
-                    predictions["v"] = out["v"].detach()
-                    predictions["alpha"] = out["alpha"].detach()
-                    predictions["beta"] = out["beta"].detach()
+                    predictions['energy'] = out['energy'].detach()
+                    predictions['v'] = out['v'].detach()
+                    predictions['alpha'] = out['alpha'].detach()
+                    predictions['beta'] = out['beta'].detach()
 
                     return predictions
             else:
-                if self.normalizers is not None and "target" in self.normalizers:
-                    out["energy"] = self.normalizers["target"].denorm(
-                        out["energy"]
-                    )
+                if self.normalizers is not None and 'target' in self.normalizers:
+                    out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
                 if per_image:
-                    predictions["id"].extend(
-                        [str(i) for i in batch[0].sid.tolist()]
-                    )
-                    predictions["energy"].extend(out["energy"].tolist())
+                    predictions['id'].extend([str(i) for i in batch[0].sid.tolist()])
+                    predictions['energy'].extend(out['energy'].tolist())
                 else:
-                    predictions["energy"] = out["energy"].detach()
+                    predictions['energy'] = out['energy'].detach()
                     return predictions
 
         if self.use_evidence == True:
-            self.save_results(predictions, results_file, keys=[
-                              "energy", "v", "alpha", "beta"])
+            self.save_results(predictions, results_file, keys=['energy', 'v', 'alpha', 'beta'])
         else:
-            self.save_results(predictions, results_file, keys=["energy"])
+            self.save_results(predictions, results_file, keys=['energy'])
 
         if self.ema:
             self.ema.restore()
@@ -231,11 +215,9 @@ class EnergyTrainer(BaseTrainer):
         return predictions
 
     def train(self, disable_eval_tqdm=False):
-        eval_every = self.config["optim"].get(
-            "eval_every", len(self.train_loader)
-        )
-        primary_metric = self.config["task"].get(
-            "primary_metric", self.evaluator.task_primary_metric[self.name]
+        eval_every = self.config['optim'].get('eval_every', len(self.train_loader))
+        primary_metric = self.config['task'].get(
+            'primary_metric', self.evaluator.task_primary_metric[self.name]
         )
         self.best_val_mae = 1e9
 
@@ -243,9 +225,7 @@ class EnergyTrainer(BaseTrainer):
         # to prevent inconsistencies due to different batch size in checkpoint.
         start_epoch = self.step // len(self.train_loader)
 
-        for epoch_int in range(
-            start_epoch, self.config["optim"]["max_epochs"]
-        ):
+        for epoch_int in range(start_epoch, self.config['optim']['max_epochs']):
             self.train_sampler.set_epoch(epoch_int)
             skip_steps = self.step % len(self.train_loader)
             train_loader_iter = iter(self.train_loader)
@@ -267,97 +247,74 @@ class EnergyTrainer(BaseTrainer):
                 scale = self.scaler.get_scale() if self.scaler else 1.0
 
                 # Compute metrics.
-                self.metrics = self._compute_metrics(
-                    out,
-                    batch,
-                    self.evaluator,
-                    metrics={},
-                )
-                self.metrics = self.evaluator.update(
-                    "loss", loss.item() / scale, self.metrics
-                )
+                self.metrics = self._compute_metrics(out, batch, self.evaluator, metrics={},)
+                self.metrics = self.evaluator.update('loss', loss.item() / scale, self.metrics)
 
                 # Log metrics.
-                log_dict = {k: self.metrics[k]["metric"] for k in self.metrics}
+                log_dict = {k: self.metrics[k]['metric'] for k in self.metrics}
                 log_dict.update(
-                    {
-                        "lr": self.scheduler.get_lr(),
-                        "epoch": self.epoch,
-                        "step": self.step,
-                    }
+                    {'lr': self.scheduler.get_lr(), 'epoch': self.epoch, 'step': self.step,}
                 )
                 if (
-                    self.step % self.config["cmd"]["print_every"] == 0
+                    self.step % self.config['cmd']['print_every'] == 0
                     and distutils.is_master()
                     and not self.is_hpo
                 ):
-                    log_str = [
-                        "{}: {:.2e}".format(k, v) for k, v in log_dict.items()
-                    ]
-                    print(", ".join(log_str))
+                    log_str = ['{}: {:.2e}'.format(k, v) for k, v in log_dict.items()]
+                    print(', '.join(log_str))
                     self.metrics = {}
 
                 if self.logger is not None:
                     self.logger.log(
-                        log_dict,
-                        step=self.step,
-                        split="train",
+                        log_dict, step=self.step, split='train',
                     )
 
                 # Evaluate on val set after every `eval_every` iterations.
                 if self.step % eval_every == 0:
-                    self.save(
-                        checkpoint_file="checkpoint.pt", training_state=True
-                    )
+                    self.save(checkpoint_file='checkpoint.pt', training_state=True)
 
                     if self.val_loader is not None:
                         val_metrics = self.validate(
-                            split="val",
-                            disable_tqdm=disable_eval_tqdm,
+                            split='val', disable_tqdm=disable_eval_tqdm,
                         )
                         if (
-                            val_metrics[
-                                self.evaluator.task_primary_metric[self.name]
-                            ]["metric"]
+                            val_metrics[self.evaluator.task_primary_metric[self.name]][
+                                'metric'
+                            ]
                             < self.best_val_mae
                         ):
                             self.best_val_mae = val_metrics[
                                 self.evaluator.task_primary_metric[self.name]
-                            ]["metric"]
+                            ]['metric']
                             self.save(
                                 metrics=val_metrics,
-                                checkpoint_file="best_checkpoint.pt",
+                                checkpoint_file='best_checkpoint.pt',
                                 training_state=False,
                             )
                             if self.test_loader is not None:
                                 self.predict(
                                     self.test_loader,
-                                    results_file="predictions",
+                                    results_file='predictions',
                                     disable_tqdm=False,
                                 )
 
                         if self.is_hpo:
                             self.hpo_update(
-                                self.epoch,
-                                self.step,
-                                self.metrics,
-                                val_metrics,
+                                self.epoch, self.step, self.metrics, val_metrics,
                             )
 
-                if self.scheduler.scheduler_type == "ReduceLROnPlateau":
+                if self.scheduler.scheduler_type == 'ReduceLROnPlateau':
                     if self.step % eval_every == 0:
-                        self.scheduler.step(
-                            metrics=val_metrics[primary_metric]["metric"],
-                        )
+                        self.scheduler.step(metrics=val_metrics[primary_metric]['metric'],)
                 else:
                     self.scheduler.step()
 
             torch.cuda.empty_cache()
 
         self.train_dataset.close_db()
-        if self.config.get("val_dataset", False):
+        if self.config.get('val_dataset', False):
             self.val_dataset.close_db()
-        if self.config.get("test_dataset", False):
+        if self.config.get('test_dataset', False):
             self.test_dataset.close_db()
 
     def _forward(self, batch_list):
@@ -370,14 +327,14 @@ class EnergyTrainer(BaseTrainer):
         if self.use_evidence == True:
             return {
                 # Use softplus to ensure positive hyperdistribution values during training.
-                "energy": output[:, 0],
-                "v": output[:, 1],
-                "alpha": output[:, 2],
-                "beta": output[:, 3],
+                'energy': output[:, 0],
+                'v': output[:, 1],
+                'alpha': output[:, 2],
+                'beta': output[:, 3],
             }
         else:
             return {
-                "energy": output,
+                'energy': output,
             }
 
     def _compute_loss(self, out, batch_list):
@@ -386,15 +343,15 @@ class EnergyTrainer(BaseTrainer):
             [batch.y_relaxed.to(self.device) for batch in batch_list], dim=0
         )
 
-        if self.normalizer.get("normalize_labels", False):
-            target_normed = self.normalizers["target"].norm(energy_target)
+        if self.normalizer.get('normalize_labels', False):
+            target_normed = self.normalizers['target'].norm(energy_target)
         else:
             target_normed = energy_target
 
         if self.use_evidence == True:
-            loss = self.loss_fn["energy"](out, target_normed)
+            loss = self.loss_fn['energy'](out, target_normed)
         else:
-            loss = self.loss_fn["energy"](out["energy"], target_normed)
+            loss = self.loss_fn['energy'](out['energy'], target_normed)
 
         return loss
 
@@ -403,13 +360,9 @@ class EnergyTrainer(BaseTrainer):
             [batch.y_relaxed.to(self.device) for batch in batch_list], dim=0
         )
 
-        if self.normalizer.get("normalize_labels", False):
-            out["energy"] = self.normalizers["target"].denorm(out["energy"])
+        if self.normalizer.get('normalize_labels', False):
+            out['energy'] = self.normalizers['target'].denorm(out['energy'])
 
-        metrics = evaluator.eval(
-            out,
-            {"energy": energy_target},
-            prev_metrics=metrics,
-        )
+        metrics = evaluator.eval(out, {'energy': energy_target}, prev_metrics=metrics,)
 
         return metrics

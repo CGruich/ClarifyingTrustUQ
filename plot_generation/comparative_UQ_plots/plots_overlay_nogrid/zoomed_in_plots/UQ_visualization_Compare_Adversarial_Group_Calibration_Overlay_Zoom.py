@@ -10,39 +10,51 @@ import os.path
 # Save the unicode string for the lambda symbol so we can put it in the plots later.
 # Make this a global variable such that it is accessible from all functions.
 global lambdaSymbolStr
-lambdaSymbolStr = "\u03bb"
+lambdaSymbolStr = '\u03bb'
 
 
-def make_plots(pred_mean, pred_std, target, lamb, subsetSeed, lineplot_array=None, lineplot_legLabels=None, lineplot_xLabels=None, showTitleChoice=True, showLegendChoice=True, plot_save_str="row"):
+def make_plots(
+    pred_mean,
+    pred_std,
+    target,
+    lamb,
+    subsetSeed,
+    lineplot_array=None,
+    lineplot_legLabels=None,
+    lineplot_xLabels=None,
+    showTitleChoice=True,
+    showLegendChoice=True,
+    plot_save_str='row',
+):
     """Make set of plots."""
 
     # "subsetSeed" is for plotting reproducibility any time data is binned (i.e. collected and averaged) for the purposes of visualization.
     # Turn on plot style customization
     uct.viz_Evidential.set_style()
     # Change font size in general
-    uct.viz_Evidential.update_rc("font.size", 14)  # Set font size
+    uct.viz_Evidential.update_rc('font.size', 14)  # Set font size
     # Change font fize of the title
     # uct.viz_Evidential.update_rc("figure.titlesize", 16) # Set title font size
     # Change xtick label size
     # Set font size for xaxis tick labels
-    uct.viz_Evidential.update_rc("xtick.labelsize", 14)
+    uct.viz_Evidential.update_rc('xtick.labelsize', 14)
     # Change ytick label size
     # Set font size for yaxis tick labels
-    uct.viz_Evidential.update_rc("ytick.labelsize", 14)
+    uct.viz_Evidential.update_rc('ytick.labelsize', 14)
     # Turn off Latex mode
-    uct.viz_Evidential.update_rc("text.usetex", False)
+    uct.viz_Evidential.update_rc('text.usetex', False)
     # Update legend general font size
-    uct.viz_Evidential.update_rc("legend.fontsize", 10)
+    uct.viz_Evidential.update_rc('legend.fontsize', 10)
     # Configure legend title font size
-    uct.viz_Evidential.update_rc("legend.title_fontsize", "small")
+    uct.viz_Evidential.update_rc('legend.title_fontsize', 'small')
     # Poster quality plots
-    uct.viz_Evidential.update_rc("figure.dpi", 600)
+    uct.viz_Evidential.update_rc('figure.dpi', 600)
     # Change the font globally
-    uct.viz_Evidential.update_rc("font.family", "Times New Roman")
+    uct.viz_Evidential.update_rc('font.family', 'Times New Roman')
     # Change the figure border width globally
-    uct.viz_Evidential.update_rc("axes.linewidth", 2.0)
+    uct.viz_Evidential.update_rc('axes.linewidth', 2.0)
     # Change the figure border color globally
-    uct.viz_Evidential.update_rc("axes.edgecolor", "black")
+    uct.viz_Evidential.update_rc('axes.edgecolor', 'black')
 
     # ylims = [-20, 20]
 
@@ -58,8 +70,7 @@ def make_plots(pred_mean, pred_std, target, lamb, subsetSeed, lineplot_array=Non
     # Restricted sub-intervals up-to and inclusive of [0, 1]
     groupSizeLims = (0.0, 0.02)
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5),
-                            sharex=False, sharey=False)
+    fig, axs = plt.subplots(1, 1, figsize=(4.5, 4.5), sharex=False, sharey=False)
 
     print(axs)
 
@@ -67,19 +78,31 @@ def make_plots(pred_mean, pred_std, target, lamb, subsetSeed, lineplot_array=Non
     axs.xaxis.set_major_formatter(PercentFormatter(1.0))
 
     # Make calibration plot
-    epistemicLabel = "Evidential Regression\n(Epistemic, " + \
-        lambdaSymbolStr + " = " + str(lamb) + ")"
-    aleatoricLabel = "Evidential Regression\n(Aleatoric, " + \
-        lambdaSymbolStr + " = " + str(lamb) + ")"
-    axs = uct.viz_Ensemble.plot_adversarial_group_calibration(pred_mean, pred_std, target, leg_loc=4, leg_labels=[
-                                                              "5-fold Ensemble", "MC Dropout", epistemicLabel, aleatoricLabel], groupSizeLims=groupSizeLims, seed=subsetSeed, showTitle=showTitleChoice, showLegend=showLegendChoice, ax=axs)
+    epistemicLabel = (
+        'Evidential Regression\n(Epistemic, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
+    )
+    aleatoricLabel = (
+        'Evidential Regression\n(Aleatoric, ' + lambdaSymbolStr + ' = ' + str(lamb) + ')'
+    )
+    axs = uct.viz_Ensemble.plot_adversarial_group_calibration(
+        pred_mean,
+        pred_std,
+        target,
+        leg_loc=4,
+        leg_labels=['5-fold Ensemble', 'MC Dropout', epistemicLabel, aleatoricLabel],
+        groupSizeLims=groupSizeLims,
+        seed=subsetSeed,
+        showTitle=showTitleChoice,
+        showLegend=showLegendChoice,
+        ax=axs,
+    )
     axs.yaxis.set_ticks(np.arange(0.0, 0.6, 0.1))
-    xTickSpacing = (groupSizeLims[1] - groupSizeLims[0])/5
+    xTickSpacing = (groupSizeLims[1] - groupSizeLims[0]) / 5
     axs.xaxis.set_ticks(
-        np.arange(groupSizeLims[0], groupSizeLims[1] + xTickSpacing, xTickSpacing))
-    axs.set_xlim(groupSizeLims[0] - xTickSpacing/5,
-                 groupSizeLims[1] + xTickSpacing/5)
-    axs.set_xlabel("Group Size (% of Test Set)")
+        np.arange(groupSizeLims[0], groupSizeLims[1] + xTickSpacing, xTickSpacing)
+    )
+    axs.set_xlim(groupSizeLims[0] - xTickSpacing / 5, groupSizeLims[1] + xTickSpacing / 5)
+    axs.set_xlabel('Group Size (% of Test Set)')
     # if showTitleChoice == True:
     #    axs.set(title = "Adversarial Group Calibration\nAcross UQ Techniques")
 
@@ -88,8 +111,9 @@ def make_plots(pred_mean, pred_std, target, lamb, subsetSeed, lineplot_array=Non
     # fig.subplots_adjust(hspace=0.50)
     plt.tight_layout()
     axs.grid(visible=None)
-    axs.tick_params(axis="both", which="major", direction="out",
-                    color="black", length=4.0, width=2.0)
+    axs.tick_params(
+        axis='both', which='major', direction='out', color='black', length=4.0, width=2.0
+    )
     # minorTicksLocator = AutoMinorLocator(2)
     # axs.xaxis.set_minor_locator(minorTicksLocator)
     # axs.yaxis.set_minor_locator(minorTicksLocator)
@@ -98,27 +122,25 @@ def make_plots(pred_mean, pred_std, target, lamb, subsetSeed, lineplot_array=Non
     savefig = True
     # Save figure
     if savefig:
-        uct.viz_Evidential.save_figure(
-            plot_save_str, "svg", white_background=True)
-        uct.viz_Evidential.save_figure(
-            plot_save_str, "png", white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'svg', white_background=True)
+        uct.viz_Evidential.save_figure(plot_save_str, 'png', white_background=True)
 
 
-targetFilePath = "VALID_TARGETS_FILEPATH"
+targetFilePath = 'VALID_TARGETS_FILEPATH'
 
 predictionFilePathList = []
-redictionFilePathEnsemble = "ENSEMBLE_PREDICTIONS_FILEPATH"
-predictionFilePathDropout = "MC_DROPOUT_PREDICTIONS_FILEPATH"
-predictionFilePathEvidential = "EVIDENTIAL_PREDICTIONS_FILEPATH"
+redictionFilePathEnsemble = 'ENSEMBLE_PREDICTIONS_FILEPATH'
+predictionFilePathDropout = 'MC_DROPOUT_PREDICTIONS_FILEPATH'
+predictionFilePathEvidential = 'EVIDENTIAL_PREDICTIONS_FILEPATH'
 predictionFilePathList.append(predictionFilePathEnsemble)
 predictionFilePathList.append(predictionFilePathDropout)
 predictionFilePathList.append(predictionFilePathEvidential)
 predictionFilePathList.append(predictionFilePathEvidential)
 
 uncertaintyFilePathList = []
-uncertaintyFilePathEnsemble = "ENSEMBLE_UNCERTAINTY_FILEPATH"
-uncertaintyFilePathDropout = "MC_DROPOUT_UNCERTAINTY_FILEPATH"
-uncertaintyFilePathEvidential = "EVIDENTIAL_UNCERTAINTY_FILEPATH"
+uncertaintyFilePathEnsemble = 'ENSEMBLE_UNCERTAINTY_FILEPATH'
+uncertaintyFilePathDropout = 'MC_DROPOUT_UNCERTAINTY_FILEPATH'
+uncertaintyFilePathEvidential = 'EVIDENTIAL_UNCERTAINTY_FILEPATH'
 uncertaintyFilePathList.append(uncertaintyFilePathEnsemble)
 uncertaintyFilePathList.append(uncertaintyFilePathDropout)
 uncertaintyFilePathList.append(uncertaintyFilePathEvidential)
@@ -127,7 +149,7 @@ uncertaintyFilePathList.append(uncertaintyFilePathEvidential)
 print(predictionFilePathList)
 
 # Where to save plot
-savePlotPath = "ADVERSARIAL_GROUP_PLOT_ZOOMED_IN_SAVE_FILEPATH_USER_SPECIFIED"
+savePlotPath = 'ADVERSARIAL_GROUP_PLOT_ZOOMED_IN_SAVE_FILEPATH_USER_SPECIFIED'
 
 # Create directory to save the plot to, if it does not exist
 if not os.path.exists(savePlotPath):
@@ -138,15 +160,15 @@ rngVisualSeed = 100
 
 # Lambda hyperparameter used for DER
 lamb = 0.05
-jobID = "9600051"
-lambStr = str(lamb).replace(".", "p")
+jobID = '9600051'
+lambStr = str(lamb).replace('.', 'p')
 
-targetFileName = "targets.csv"
+targetFileName = 'targets.csv'
 
 predictionFileNameList = []
-predictionFileNameEnsemble = "IS2RE_all_CGCNN_ValID_Ensemble5_Energy_Mean.csv"
-predictionFileNameDropout = "IS2RE_all_CGCNN_ValID_MC_Energy_Mean1000.csv"
-predictionFileNameEvidential = "evidential_gamma_" + jobID + ".csv"
+predictionFileNameEnsemble = 'IS2RE_all_CGCNN_ValID_Ensemble5_Energy_Mean.csv'
+predictionFileNameDropout = 'IS2RE_all_CGCNN_ValID_MC_Energy_Mean1000.csv'
+predictionFileNameEvidential = 'evidential_gamma_' + jobID + '.csv'
 predictionFileNameList.append(predictionFileNameEnsemble)
 predictionFileNameList.append(predictionFileNameDropout)
 predictionFileNameList.append(predictionFileNameEvidential)
@@ -154,10 +176,10 @@ predictionFileNameList.append(predictionFileNameEvidential)
 
 
 uncertaintyFileNameList = []
-uncertaintyFileNameEnsemble = "IS2RE_all_CGCNN_ValID_Ensemble5_Energy_StdDev.csv"
-uncertaintyFileNameDropout = "IS2RE_all_CGCNN_ValID_MC_Energy_StdDev1000.csv"
-epistemicUncertaintyFileNameEvidential = "epistemic_uncertainty_" + jobID + ".csv"
-aleatoricUncertaintyFileNameEvidential = "aleatoric_uncertainty_" + jobID + ".csv"
+uncertaintyFileNameEnsemble = 'IS2RE_all_CGCNN_ValID_Ensemble5_Energy_StdDev.csv'
+uncertaintyFileNameDropout = 'IS2RE_all_CGCNN_ValID_MC_Energy_StdDev1000.csv'
+epistemicUncertaintyFileNameEvidential = 'epistemic_uncertainty_' + jobID + '.csv'
+aleatoricUncertaintyFileNameEvidential = 'aleatoric_uncertainty_' + jobID + '.csv'
 uncertaintyFileNameList.append(uncertaintyFileNameEnsemble)
 uncertaintyFileNameList.append(uncertaintyFileNameDropout)
 uncertaintyFileNameList.append(epistemicUncertaintyFileNameEvidential)
@@ -169,31 +191,31 @@ predictionFileList = []
 uncertaintyFileList = []
 
 for ind in range(len(predictionFilePathList)):
-    predictionFilePath = os.path.join(
-        predictionFilePathList[ind], predictionFileNameList[ind])
+    predictionFilePath = os.path.join(predictionFilePathList[ind], predictionFileNameList[ind])
     uncertaintyFilePath = os.path.join(
-        uncertaintyFilePathList[ind], uncertaintyFileNameList[ind])
+        uncertaintyFilePathList[ind], uncertaintyFileNameList[ind]
+    )
 
     predictionFileList.append(predictionFilePath)
     uncertaintyFileList.append(uncertaintyFilePath)
 
 
-print("\nPrediction Files:")
+print('\nPrediction Files:')
 print(predictionFileList)
-print("\nUncertainty Files:")
+print('\nUncertainty Files:')
 print(uncertaintyFileList)
 
 
 targetFile = targetFilePath + targetFileName
 # What to name plot
-savePlotNameTitle = "UQ_Technique_Compare_Overlay_AdvCalibration_Title_Seed" + \
-    str(rngVisualSeed)
-savePlotNameLeg = "UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed" + \
-    str(rngVisualSeed)
-savePlotNameLegTitle = "UQ_Technique_Compare_Overlay_AdvCalibration_LegTitle_Seed" + \
-    str(rngVisualSeed)
-savePlotName = "UQ_Technique_Compare_Overlay_AdvCalibration_Seed" + \
-    str(rngVisualSeed)
+savePlotNameTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_Title_Seed' + str(
+    rngVisualSeed
+)
+savePlotNameLeg = 'UQ_Technique_Compare_Overlay_AdvCalibration_Leg_Seed' + str(rngVisualSeed)
+savePlotNameLegTitle = 'UQ_Technique_Compare_Overlay_AdvCalibration_LegTitle_Seed' + str(
+    rngVisualSeed
+)
+savePlotName = 'UQ_Technique_Compare_Overlay_AdvCalibration_Seed' + str(rngVisualSeed)
 
 savePlotFileTitle = os.path.join(savePlotPath, savePlotNameTitle)
 savePlotFileLeg = os.path.join(savePlotPath, savePlotNameLeg)
@@ -212,37 +234,35 @@ for ind in range(len(predictionFileList)):
     uncertaintyPD = pd.read_csv(uncertaintyFileList[ind])
     uncertaintyPDList.append(uncertaintyPD)
 
-targetColName = "Target (eV)"
-predictionColNameEnsemble = "Mean Sample Energy (eV)"
+targetColName = 'Target (eV)'
+predictionColNameEnsemble = 'Mean Sample Energy (eV)'
 predictionColNameDropout = predictionColNameEnsemble
-predictionColNameEvidential = "Ads. Energy. (eV)"
-uncertaintyColNameEnsemble = "Std. Dev. Sample Energy (eV)"
+predictionColNameEvidential = 'Ads. Energy. (eV)'
+uncertaintyColNameEnsemble = 'Std. Dev. Sample Energy (eV)'
 uncertaintyColNameDropout = uncertaintyColNameEnsemble
-epistemicUncertaintyColNameEvidential = "Epistemic Uncertainty (std. dev., eV)"
-aleatoricUncertaintyColNameEvidential = "Aleatoric Uncertainty (std. dev., eV)"
+epistemicUncertaintyColNameEvidential = 'Epistemic Uncertainty (std. dev., eV)'
+aleatoricUncertaintyColNameEvidential = 'Aleatoric Uncertainty (std. dev., eV)'
 targetNP = targetPD[targetColName].to_numpy()
 
 predictionNPList = []
 uncertaintyNPList = []
 
-predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy(
-)
+predictionNPEnsemble = predictionPDList[0][predictionColNameEnsemble].to_numpy()
 predictionNPDropout = predictionPDList[1][predictionColNameDropout].to_numpy()
-predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy(
-)
+predictionNPEvidential = predictionPDList[2][predictionColNameEvidential].to_numpy()
 predictionNPList.append(predictionNPEnsemble)
 predictionNPList.append(predictionNPDropout)
 predictionNPList.append(predictionNPEvidential)
 predictionNPList.append(predictionNPEvidential)
 
-uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy(
-)
-uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy(
-)
-epistemicUncertaintyNPEvidential = uncertaintyPDList[2][epistemicUncertaintyColNameEvidential].to_numpy(
-)
-aleatoricUncertaintyNPEvidential = uncertaintyPDList[3][aleatoricUncertaintyColNameEvidential].to_numpy(
-)
+uncertaintyNPEnsemble = uncertaintyPDList[0][uncertaintyColNameEnsemble].to_numpy()
+uncertaintyNPDropout = uncertaintyPDList[1][uncertaintyColNameDropout].to_numpy()
+epistemicUncertaintyNPEvidential = uncertaintyPDList[2][
+    epistemicUncertaintyColNameEvidential
+].to_numpy()
+aleatoricUncertaintyNPEvidential = uncertaintyPDList[3][
+    aleatoricUncertaintyColNameEvidential
+].to_numpy()
 uncertaintyNPList.append(uncertaintyNPEnsemble)
 uncertaintyNPList.append(uncertaintyNPDropout)
 uncertaintyNPList.append(epistemicUncertaintyNPEvidential)
@@ -250,11 +270,55 @@ uncertaintyNPList.append(aleatoricUncertaintyNPEvidential)
 
 
 # Whether the title and/or legend is going to be shown.
-make_plots(predictionNPList, uncertaintyNPList, targetNP, lamb, rngVisualSeed, lineplot_array=None, lineplot_legLabels=None, lineplot_xLabels=None,
-           showTitleChoice=True, showLegendChoice=False, plot_save_str=savePlotFileTitle)
-make_plots(predictionNPList, uncertaintyNPList, targetNP, lamb, rngVisualSeed, lineplot_array=None, lineplot_legLabels=None, lineplot_xLabels=None,
-           showTitleChoice=False, showLegendChoice=True, plot_save_str=savePlotFileLeg)
-make_plots(predictionNPList, uncertaintyNPList, targetNP, lamb, rngVisualSeed, lineplot_array=None, lineplot_legLabels=None, lineplot_xLabels=None,
-           showTitleChoice=True, showLegendChoice=True, plot_save_str=savePlotFileLegTitle)
-make_plots(predictionNPList, uncertaintyNPList, targetNP, lamb, rngVisualSeed, lineplot_array=None, lineplot_legLabels=None, lineplot_xLabels=None,
-           showTitleChoice=False, showLegendChoice=False, plot_save_str=savePlotFile)
+make_plots(
+    predictionNPList,
+    uncertaintyNPList,
+    targetNP,
+    lamb,
+    rngVisualSeed,
+    lineplot_array=None,
+    lineplot_legLabels=None,
+    lineplot_xLabels=None,
+    showTitleChoice=True,
+    showLegendChoice=False,
+    plot_save_str=savePlotFileTitle,
+)
+make_plots(
+    predictionNPList,
+    uncertaintyNPList,
+    targetNP,
+    lamb,
+    rngVisualSeed,
+    lineplot_array=None,
+    lineplot_legLabels=None,
+    lineplot_xLabels=None,
+    showTitleChoice=False,
+    showLegendChoice=True,
+    plot_save_str=savePlotFileLeg,
+)
+make_plots(
+    predictionNPList,
+    uncertaintyNPList,
+    targetNP,
+    lamb,
+    rngVisualSeed,
+    lineplot_array=None,
+    lineplot_legLabels=None,
+    lineplot_xLabels=None,
+    showTitleChoice=True,
+    showLegendChoice=True,
+    plot_save_str=savePlotFileLegTitle,
+)
+make_plots(
+    predictionNPList,
+    uncertaintyNPList,
+    targetNP,
+    lamb,
+    rngVisualSeed,
+    lineplot_array=None,
+    lineplot_legLabels=None,
+    lineplot_xLabels=None,
+    showTitleChoice=False,
+    showLegendChoice=False,
+    plot_save_str=savePlotFile,
+)

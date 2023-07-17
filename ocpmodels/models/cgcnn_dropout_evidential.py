@@ -25,12 +25,12 @@ This involves three changes:
 # Except, it calculates evidential distribution parameters
 
 
-
-
 from ocpmodels.datasets.embeddings import KHOT_EMBEDDINGS, QMOF_KHOT_EMBEDDINGS
 from ocpmodels.models.base import BaseModel
 import math
 import numpy as np
+
+
 class DenseNormalGamma(torch.nn.Module):
     # Default output size is 4 because there are 4 parameters to the evidential distribution
     def __init__(self, inputSize, outputSize=4):
@@ -53,7 +53,7 @@ class DenseNormalGamma(torch.nn.Module):
         # Weight initialization (equivalent to standard dense, linear PyTorch layer)
         torch.nn.init.kaiming_uniform_(self.weights, a=math.sqrt(5))
         fan_in, _ = torch.nn.init._calculate_fan_in_and_fan_out(self.weights)
-        bound = 1/np.sqrt(fan_in)
+        bound = 1 / np.sqrt(fan_in)
 
         # Bias initialization (equivalent to standard dense, linear PyTorch layer)
         torch.nn.init.uniform_(self.bias, -bound, bound)
@@ -85,7 +85,7 @@ class DenseNormalGamma(torch.nn.Module):
         return torch.cat([mu, logv, logalpha, logbeta], dim=1)
 
 
-@registry.register_model("cgcnn_dropout_evidential_v2")
+@registry.register_model('cgcnn_dropout_evidential_v2')
 class CGCNN(BaseModel):
     r"""Implementation of the Crystal Graph CNN model from the
     `"Crystal Graph Convolutional Neural Networks for an Accurate
@@ -142,7 +142,7 @@ class CGCNN(BaseModel):
         otf_graph=False,
         cutoff=6.0,
         num_gaussians=50,
-        embeddings="khot",
+        embeddings='khot',
         # Use dropout at all in the model
         use_dropout=False,
         # The degree of dropout for each fully-connected layer.
@@ -152,7 +152,7 @@ class CGCNN(BaseModel):
         # Use evidential deep learning
         use_evidence=False,
         # Evidential regularization term hyperparameters
-        lamb=0.0
+        lamb=0.0,
     ):
         super(CGCNN, self).__init__(num_atoms, bond_feat_dim, num_targets)
         self.regress_forces = regress_forces
@@ -172,9 +172,9 @@ class CGCNN(BaseModel):
         self.lamb = lamb
 
         # Get CGCNN atom embeddings
-        if embeddings == "khot":
+        if embeddings == 'khot':
             embeddings = KHOT_EMBEDDINGS
-        elif embeddings == "qmof":
+        elif embeddings == 'qmof':
             embeddings = QMOF_KHOT_EMBEDDINGS
         else:
             raise ValueError(
@@ -187,11 +187,7 @@ class CGCNN(BaseModel):
 
         self.convs = nn.ModuleList(
             [
-                CGCNNConv(
-                    node_dim=atom_embedding_size,
-                    edge_dim=bond_feat_dim,
-                    cutoff=cutoff,
-                )
+                CGCNNConv(node_dim=atom_embedding_size, edge_dim=bond_feat_dim, cutoff=cutoff,)
                 for _ in range(num_graph_conv_layers)
             ]
         )
@@ -207,9 +203,7 @@ class CGCNN(BaseModel):
                 for _ in range(num_fc_layers - 1):
                     layers.append(nn.Linear(fc_feat_size, fc_feat_size))
                     # Add dropout here with dropout rate stored in dropout_rate
-                    layers.append(
-                        torch.nn.Dropout(p=self.dropout_rate, inplace=False)
-                    )
+                    layers.append(torch.nn.Dropout(p=self.dropout_rate, inplace=False))
                     layers.append(nn.Softplus())
                 self.fcs = nn.Sequential(*layers)
 
@@ -230,9 +224,7 @@ class CGCNN(BaseModel):
                 fc_out_layers.append(DenseNormalGamma(inputSize=fc_feat_size))
             else:
                 fc_out_layers.append(nn.Linear(fc_feat_size, self.num_targets))
-            fc_out_layers.append(
-                torch.nn.Dropout(p=dropout_rate, inplace=False)
-            )
+            fc_out_layers.append(torch.nn.Dropout(p=dropout_rate, inplace=False))
             self.fc_out = nn.Sequential(*fc_out_layers)
 
         # If dropout is specified via use_dropout = False
@@ -255,28 +247,20 @@ class CGCNN(BaseModel):
         pos = data.pos
 
         if self.otf_graph:
-            edge_index, cell_offsets, neighbors = radius_graph_pbc(
-                data, self.cutoff, 50
-            )
+            edge_index, cell_offsets, neighbors = radius_graph_pbc(data, self.cutoff, 50)
             data.edge_index = edge_index
             data.cell_offsets = cell_offsets
             data.neighbors = neighbors
 
         if self.use_pbc:
             out = get_pbc_distances(
-                pos,
-                data.edge_index,
-                data.cell,
-                data.cell_offsets,
-                data.neighbors,
+                pos, data.edge_index, data.cell, data.cell_offsets, data.neighbors,
             )
 
-            data.edge_index = out["edge_index"]
-            distances = out["distances"]
+            data.edge_index = out['edge_index']
+            distances = out['distances']
         else:
-            data.edge_index = radius_graph(
-                data.pos, r=self.cutoff, batch=data.batch
-            )
+            data.edge_index = radius_graph(data.pos, r=self.cutoff, batch=data.batch)
             row, col = data.edge_index
             distances = (pos[row] - pos[col]).norm(dim=-1)
 
@@ -284,7 +268,7 @@ class CGCNN(BaseModel):
         # Forward pass through the network
         mol_feats = self._convolve(data)
         mol_feats = self.conv_to_fc(mol_feats)
-        if hasattr(self, "fcs"):
+        if hasattr(self, 'fcs'):
             mol_feats = self.fcs(mol_feats)
 
         energy = self.fc_out(mol_feats)
@@ -298,10 +282,7 @@ class CGCNN(BaseModel):
         if self.regress_forces:
             forces = -1 * (
                 torch.autograd.grad(
-                    energy,
-                    data.pos,
-                    grad_outputs=torch.ones_like(energy),
-                    create_graph=True,
+                    energy, data.pos, grad_outputs=torch.ones_like(energy), create_graph=True,
                 )[0]
             )
             return energy, forces
@@ -328,14 +309,13 @@ class CGCNNConv(MessagePassing):
     """
 
     def __init__(self, node_dim, edge_dim, cutoff=6.0, **kwargs):
-        super(CGCNNConv, self).__init__(aggr="add")
+        super(CGCNNConv, self).__init__(aggr='add')
         self.node_feat_size = node_dim
         self.edge_feat_size = edge_dim
         self.cutoff = cutoff
 
         self.lin1 = nn.Linear(
-            2 * self.node_feat_size + self.edge_feat_size,
-            2 * self.node_feat_size,
+            2 * self.node_feat_size + self.edge_feat_size, 2 * self.node_feat_size,
         )
         self.bn1 = nn.BatchNorm1d(2 * self.node_feat_size)
         self.ln1 = nn.LayerNorm(self.node_feat_size)
@@ -357,9 +337,7 @@ class CGCNNConv(MessagePassing):
             edge_index has shape [2, num_edges]
             edge_attr is [num_edges, edge_feat_size]
         """
-        out = self.propagate(
-            edge_index, x=x, edge_attr=edge_attr, size=(x.size(0), x.size(0))
-        )
+        out = self.propagate(edge_index, x=x, edge_attr=edge_attr, size=(x.size(0), x.size(0)))
         out = nn.Softplus()(self.ln1(out) + x)
         return out
 
